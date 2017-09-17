@@ -81,6 +81,8 @@
     <script src="{{asset('plugins/datatables/dataTables.fixedColumns.min.js')}}"></script>
 
     <script>
+        var table;
+
         $(function () {
             table = $('#table-asesores').DataTable({
                 processing: true,
@@ -121,12 +123,6 @@
                                     case "success":
                                         modalBs.modal({ backdrop: 'static', keyboard: false }, 'show');
 
-                                        /*if (dataModalValue == "modal-lg") {
-                                            modalBs.find(".modal-dialog").addClass("modal-lg");
-                                        } else {
-                                            modalBs.find(".modal-dialog").removeClass("modal-lg");
-                                        }*/
-
                                         break;
 
                                     case "error":
@@ -150,8 +146,79 @@
                 order: [[1, 'asc']]
             });
 
-            $('#datatable').DataTable();
+
         });
+
+        function cambiarestado(id) {
+            swal({
+                    title: '¿Estas seguro?',
+                    text: "¡¡Desea cambiar estado del asesor!!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Si',
+                    cancelButtonText: 'No',
+                    confirmButtonClass: 'btn btn-success',
+                    cancelButtonClass: 'btn btn-danger m-l-10',
+                    buttonsStyling: false
+                }).then(function () {
+                    $.ajax({
+                        url: '{{route('asesor.cambiarestado')}}',
+                        data: {id: id},
+                        type: 'POST',
+                        dataType: 'json',
+                        beforeSend: function () {
+                            cargando();
+                        },
+                        success: function (result) {
+                            if (result.estado) {
+                                swal(
+                                    {
+                                        title: 'Bien!!',
+                                        text: result.mensaje,
+                                        type: 'success',
+                                        confirmButtonColor: '#4fa7f3'
+                                    }
+                                )
+                                modalBs.modal('hide');
+                            } else if (result.estado == false) {
+                                swal(
+                                    'Error!!',
+                                    result.mensaje,
+                                    'error'
+                                )
+                            } else {
+                                html = '';
+                                for (i = 0; i < result.length; i++) {
+                                    html += result[i] + '\n\r';
+                                }
+                                swal(
+                                    'Error!!',
+                                    html,
+                                    'error'
+                                )
+                            }
+                            table.ajax.reload();
+                        },
+                        error: function (xhr, status) {
+                            var message = "Error de ejecución: " + xhr.status + " " + xhr.statusText;
+                            swal(
+                                'Error!!',
+                                message,
+                                'error'
+                            )
+                        },
+                        // código a ejecutar sin importar si la petición falló o no
+                        complete: function (xhr, status) {
+                            fincarga();
+                        }
+                    });
+                });
+
+
+
+        }
+
+
     </script>
 @endsection
 
