@@ -26,4 +26,8 @@ Route::get('/asesor/crear', 'HomeController@viewCrearAsesor')->name('asesor.crea
 Route::post('/asesor/crear', 'HomeController@crearAsesor')->name('asesor.crearp');
 Route::get('/asesor/editar/{id}', 'HomeController@viewEditarAsesor')->name('asesor.editar');
 Route::post('/asesor/editar/{id}', 'HomeController@editarAsesor')->name('asesor.editarp');
+Route::post('/asesor/cambiarestado', 'HomeController@cambiarEstadoAsesor')->name('asesor.cambiarestado');
+Route::get('geoposicionfinal', 'HomeController@geoPosicionfinal')->name('geoposicionfinal');
+Route::get('ubicarasesor', 'HomeController@ubicarasesor')->name('ubicarasesor');
+Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
 

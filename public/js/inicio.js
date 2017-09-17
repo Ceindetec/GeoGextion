@@ -15,6 +15,10 @@ $(function(){
     $(document).on('mouseover','table a[data-modal]', function(){
         handleAjaxModal();
     })
+
+    $(document).on('keyup','.toupercase', function(){
+        $(this).val($(this).val().toUpperCase());
+    })
 });
 
 
@@ -127,6 +131,7 @@ function touchHandler(event)
     first.target.dispatchEvent(simulatedEvent);
     // event.preventDefault();
 }
+
 
 function cargando() {
     $('#contecarga').show();

@@ -12,12 +12,12 @@
 
             <div class="form-group">
                 <label class="control-label">Nombres</label>
-                {{Form::text('nombres', null ,['class'=>'form-control', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
+                {{Form::text('nombres', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
             </div>
 
             <div class="form-group">
                 <label class="control-label">Apellidos</label>
-                {{Form::text('apellidos', null ,['class'=>'form-control', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
+                {{Form::text('apellidos', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
             </div>
 
             <div class="form-group">
@@ -32,7 +32,7 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-custom waves-effect waves-light">Guardar</button>
+        <button type="submit" class="btn btn-success waves-effect waves-light">Guardar</button>
     </div>
     {{Form::close()}}
 </div>
