@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ app()->getLocale() }}">
 <head>
     <meta charset="utf-8" />
-    <title>Adminox - Responsive Web App Kit</title>
+    <title>{{ config('app.name', 'Laravel') }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="Coderthemes" name="author" />
@@ -40,7 +40,7 @@
                         <div class="account-box">
                             <div class="account-logo-box">
                                 <h2 class="text-uppercase text-center">
-                                    <a href="index.html" class="text-success">
+                                    <a href="{{route('login')}}" class="text-success">
                                         <span><img src="{{url('images/logo_dark.png')}}" alt="" height="30"></span>
                                     </a>
                                 </h2>
@@ -64,7 +64,7 @@
 
                                     <div class="form-group{{ $errors->has('password') ? ' has-error' : '' }} m-b-20">
                                         <div class="col-xs-12">
-                                            <a href="{{ route('password.request') }}" class="text-muted pull-right"><small>¿Olvido su contraseña?</small></a>
+                                            {{--<a href="{{ route('password.request') }}" class="text-muted pull-right"><small>¿Olvido su contraseña?</small></a>--}}
                                             <label for="password">Contraseña</label>
                                             <input class="form-control" type="password" name="password" required="" id="password" placeholder="Enter your password">
                                             @if ($errors->has('password'))
@@ -96,25 +96,8 @@
 
                                 </form>
 
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <div class="text-center">
-                                            <button type="button" class="btn m-r-5 btn-facebook waves-effect waves-light">
-                                                <i class="fa fa-facebook"></i>
-                                            </button>
-                                            <button type="button" class="btn m-r-5 btn-googleplus waves-effect waves-light">
-                                                <i class="fa fa-google"></i>
-                                            </button>
-                                            <button type="button" class="btn m-r-5 btn-twitter waves-effect waves-light">
-                                                <i class="fa fa-twitter"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
                                 <div class="row m-t-50">
                                     <div class="col-sm-12 text-center">
-                                        <p class="text-muted">¿No tienes una cuenta? <a href="{{route('register')}}" class="text-dark m-l-5"><b>Registrese</b></a></p>
                                     </div>
                                 </div>
 
@@ -140,7 +123,7 @@
 </script>
 
 <!-- jQuery  -->
-<script src="{{asset('js/jquery.min.js')}}}"></script>
+{{Html::script('js/jquery.min.js')}}
 <script src="{{asset('js/bootstrap.min.js')}}"></script>
 <script src="{{asset('js/metisMenu.min.js')}}"></script>
 <script src="{{asset('js/waves.js')}}"></script>

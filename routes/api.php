@@ -18,3 +18,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('nuevopunto','WebApiController@nuevoPunto');
+Route::post('validarid','WebApiController@validaIdentificacion');

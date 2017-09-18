@@ -12,12 +12,12 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('datatable_es', 'IndiomasController@espanol')->name('datatable_es');
 
-Auth::routes();
+//Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/asesores', 'HomeController@listaAsesores')->name('listaacesores');
@@ -32,3 +32,18 @@ Route::get('ubicarasesor', 'HomeController@ubicarasesor')->name('ubicarasesor');
 Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
 Route::get('updatemarketgeneral', 'HomeController@updatemarketgeneral')->name('updatemarketgeneral');
 
+
+Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
+Route::post('perfil/usuario', 'PerfilUsuarioController@actulizarPerfil');
+
+
+
+
+Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('login', 'Auth\LoginController@login');
+//Password reset routes
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
