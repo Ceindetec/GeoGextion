@@ -6,6 +6,7 @@ use App\Asesores;
 use App\GeoPosicion;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 
 class HomeController extends Controller
@@ -172,5 +173,32 @@ class HomeController extends Controller
         $markets = $markets->getRuta($request->fecha)->get();
 
         return $markets;
+    }
+
+    public function updatemarketgeneral(){
+        $response = new StreamedResponse(function() {
+            $old_fecha = GeoPosicion::whereDate('fecha',Carbon::now()->format('Y-m-d'))
+                ->orderBy('fecha','desc')->first();
+
+            while (true) {
+                $new_fecha = GeoPosicion::whereDate('fecha',Carbon::now()->format('Y-m-d'))
+                    ->orderBy('fecha','desc')->first();
+
+                if ($new_fecha->fecha > $old_fecha->fecha) {
+                    $markets = Asesores::where('estado','A')->get();
+                    foreach ($markets as $market){
+                        $market->getPosition;
+                    }
+                    echo 'data: ' . json_encode($markets) . "\n\n";
+                    ob_flush();
+                    flush();
+                }
+                sleep(20);
+                $old_fecha = $new_fecha;
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        return $response;
     }
 }
