@@ -76,7 +76,7 @@
     <script src="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
 
     <script>
-
+        var ruta = false;
         $(function () {
            initMap();
 
@@ -87,71 +87,42 @@
             });
 
             $('#asesor').change(function () {
+                ruta = false;
                 if($(this).val()!=''){
-                    $.get('{{route('ubicarasesor')}}',{identificacion:$(this).val()},function (data) {
-                        map.removeMarkers();
-                        map.removePolylines();
-                        map.addMarker({
-                            lat: data.get_position[data.get_position.length -1].latitud,
-                            lng: data.get_position[data.get_position.length -1].longitud,
-                            title: 'Marker with InfoWindow',
-                            infoWindow: {
-                                content: '<p>'+data.nombres+' '+data.apellidos+'</p>'
-                            }
-                        });
-
-                        map.setCenter(
-                            data.get_position[data.get_position.length -1].latitud,
-                            data.get_position[data.get_position.length -1].longitud
-                        );
-
-                        map.setZoom(16);
-                    });
+                    marketIndividual($(this).val())
                 }else{
                     ultimaposcicion();
                 }
             });
 
             $('#ruta').click(function () {
-                $.get('{{route('rutaasesor')}}',{identificacion:$("#asesor").val(),fecha:$('#datepicker').val()},function (data) {
-                    map.removeMarkers();
-                    map.removePolylines();
-                   var puntos= [];
-                   var punto = [];
-                   for(i=0;i<data.length;i++){
-                       punto = [data[i].latitud,data[i].longitud];
-                       puntos.push(punto);
-                   }
-                    map.drawPolyline({
-                        path: puntos,
-                        strokeColor: '#131540',
-                        strokeOpacity: 0.6,
-                        strokeWeight: 6
+                if($('#asesor').val() != '' && $('#datepicker').val() != ''){
+                    ruta = true;
+                    $.get('{{route('rutaasesor')}}',{identificacion:$("#asesor").val(),fecha:$('#datepicker').val()},function (data) {
+                        map.removeMarkers();
+                        map.removePolylines();
+                        var puntos= [];
+                        var punto = [];
+                        for(i=0;i<data.length;i++){
+                            punto = [data[i].latitud,data[i].longitud];
+                            puntos.push(punto);
+                        }
+                        map.drawPolyline({
+                            path: puntos,
+                            strokeColor: '#131540',
+                            strokeOpacity: 0.6,
+                            strokeWeight: 6
+                        });
+                        map.setZoom(16);
                     });
-                    map.setZoom(16);
-                })
+                }
             });
-
-
-
             setTimeout(ultimaposcicion,300);
         });
 
         function ultimaposcicion() {
             $.get('{{route('geoposicionfinal')}}',{},function(data){
-                map.removePolylines();
-                map.removeMarkers();
-                console.log(data);
-                for(i=0;i<data.length;i++){
-                    map.addMarker({
-                        lat: data[i].get_position[data[i].get_position.length -1].latitud,
-                        lng: data[i].get_position[data[i].get_position.length -1].longitud,
-                        title: 'Marker with InfoWindow',
-                        infoWindow: {
-                            content: '<p>'+data[i].nombres+' '+data[i].apellidos+'</p>'
-                        }
-                    });
-                }
+                contrucionutimomarke(data)
             });
         }
 
@@ -165,6 +136,55 @@
                 });
             },200);
         };
+
+        function marketIndividual(id) {
+            $.get('{{route('ubicarasesor')}}',{identificacion:id},function (data) {
+                map.removeMarkers();
+                map.removePolylines();
+                map.addMarker({
+                    lat: data.get_position[data.get_position.length -1].latitud,
+                    lng: data.get_position[data.get_position.length -1].longitud,
+                    title: 'Marker with InfoWindow',
+                    infoWindow: {
+                        content: '<p>'+data.nombres+' '+data.apellidos+'</p>'
+                    }
+                });
+
+                map.setCenter(
+                    data.get_position[data.get_position.length -1].latitud,
+                    data.get_position[data.get_position.length -1].longitud
+                );
+
+                map.setZoom(16);
+            });
+        }
+
+        function contrucionutimomarke(data) {
+            map.removePolylines();
+            map.removeMarkers();
+            for(i=0;i<data.length;i++){
+                map.addMarker({
+                    lat: data[i].get_position[data[i].get_position.length -1].latitud,
+                    lng: data[i].get_position[data[i].get_position.length -1].longitud,
+                    title: 'Marker with InfoWindow',
+                    infoWindow: {
+                        content: '<p>'+data[i].nombres+' '+data[i].apellidos+'</p>'
+                    }
+                });
+            }
+        }
+
+        var source = new EventSource("{{route('updatemarketgeneral')}}");
+        source.onmessage = function(event) {
+            if(!ruta){
+                if($('#asesor').val() == ''){
+                    contrucionutimomarke(JSON.parse(event.data))
+                }else{
+                    marketIndividual($('#asesor').val());
+                }
+            }
+        };
+
     </script>
 
 @endsection

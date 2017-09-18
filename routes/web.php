@@ -30,4 +30,5 @@ Route::post('/asesor/cambiarestado', 'HomeController@cambiarEstadoAsesor')->name
 Route::get('geoposicionfinal', 'HomeController@geoPosicionfinal')->name('geoposicionfinal');
 Route::get('ubicarasesor', 'HomeController@ubicarasesor')->name('ubicarasesor');
 Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
+Route::get('updatemarketgeneral', 'HomeController@updatemarketgeneral')->name('updatemarketgeneral');
 
