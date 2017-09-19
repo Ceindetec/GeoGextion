@@ -41,7 +41,7 @@
                             <div class="account-logo-box">
                                 <h2 class="text-uppercase text-center">
                                     <a href="{{route('login')}}" class="text-success">
-                                        <span><img src="{{url('images/logo_dark.png')}}" alt="" height="30"></span>
+                                        <span><img src="{{url('images/logo1.png')}}" alt="" height="70"></span>
                                     </a>
                                 </h2>
                                 <h5 class="text-uppercase font-bold m-b-5 m-t-50">Ingrese</h5>
@@ -53,7 +53,7 @@
                                     <div class="form-group{{ $errors->has('email') ? ' has-error' : '' }} m-b-20">
                                         <div class="col-xs-12">
                                             <label for="emailaddress">Correo electronico</label>
-                                            <input class="form-control" type="email" name="email" id="emailaddress" required value="{{ old('email') }}" autofocus placeholder="john@deo.com">
+                                            <input class="form-control" type="email" name="email" id="emailaddress" required value="{{ old('email') }}" autofocus placeholder="micorreo@host.com">
                                             @if ($errors->has('email'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('email') }}</strong>
@@ -66,7 +66,7 @@
                                         <div class="col-xs-12">
                                             {{--<a href="{{ route('password.request') }}" class="text-muted pull-right"><small>¿Olvido su contraseña?</small></a>--}}
                                             <label for="password">Contraseña</label>
-                                            <input class="form-control" type="password" name="password" required="" id="password" placeholder="Enter your password">
+                                            <input class="form-control" type="password" name="password" required="" id="password" placeholder="Ingrese su contraseña">
                                             @if ($errors->has('password'))
                                                 <span class="help-block">
                                                     <strong>{{ $errors->first('password') }}</strong>
@@ -90,7 +90,7 @@
 
                                     <div class="form-group text-center m-t-10">
                                         <div class="col-xs-12">
-                                            <button class="btn btn-md btn-block btn-primary waves-effect waves-light" type="submit">Sign In</button>
+                                            <button class="btn btn-md btn-block btn-primary waves-effect waves-light" type="submit">Ingresar</button>
                                         </div>
                                     </div>
 

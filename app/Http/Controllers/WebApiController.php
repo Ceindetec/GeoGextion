@@ -21,7 +21,7 @@ class WebApiController extends Controller
             $result['mensaje'] = 'registrado';
         }catch (\Exception $exception){
             $result['estado'] = false;
-            $result['mensaje'] = 'Error '.$exception->getMessage();
+            $result['mensaje'] = 'Error durante la insercion';
         }
         return $result;
     }

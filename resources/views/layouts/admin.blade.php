@@ -85,12 +85,12 @@
         <div class="topbar-left">
             <!--<a href="index.html" class="logo"><span>Code<span>Fox</span></span><i class="mdi mdi-layers"></i></a>-->
             <!-- Image logo -->
-            <a href="index.html" class="logo">
+            <a href="{{route('home')}}" class="logo">
                         <span>
-                            <img src="{{url('images/logo.png')}}" alt="" height="25">
+                            <img src="{{url('images/logoblanco.png')}}" alt="" height="50">
                         </span>
                 <i>
-                    <img src="{{url('images/logo_sm.png')}}" alt="" height="28">
+                    <img src="{{url('images/logosmblanco.png')}}" alt="" height="38">
                 </i>
             </a>
         </div>
@@ -166,7 +166,7 @@
 
 
         <footer class="footer text-right">
-            2017 © Adminox. - Coderthemes.com
+            2017 © GeoGextion. - Ceindetec.org.co
         </footer>
 
     </div>
