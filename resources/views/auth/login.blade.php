@@ -9,7 +9,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
     <!-- App favicon -->
-    <link rel="shortcut icon" href="{{url('images/favicon.ico')}}">
+    <link rel="shortcut icon" href="{{asset('images/logosmnormal.png')}}">
 
     <!-- App css -->
     <link href="{{asset('plugins/bootstrap-select/css/bootstrap-select.min.css')}}" rel="stylesheet" />
