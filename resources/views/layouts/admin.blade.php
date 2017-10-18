@@ -17,6 +17,7 @@
 
     {{Html::style('plugins/sweet-alert2/sweetalert2.min.css')}}
 
+
     <!-- App css -->
     {{Html::style('css/bootstrap.min.css')}}
     {{Html::style('css/core.css')}}

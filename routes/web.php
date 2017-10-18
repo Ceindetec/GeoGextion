@@ -33,6 +33,11 @@ Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
 Route::get('updatemarketgeneral', 'HomeController@updatemarketgeneral')->name('updatemarketgeneral');
 
 
+Route::get('consulta', 'HomeController@consulta')->name('consulta');
+Route::get('resultadoconsulta', 'HomeController@resultadoConsulta')->name('resultadoconsulta');
+Route::get('modalpunto', 'HomeController@modalPunto')->name('modalpunto');
+
+
 Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
 Route::post('perfil/usuario', 'PerfilUsuarioController@actulizarPerfil');
 

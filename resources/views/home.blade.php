@@ -163,14 +163,16 @@
             map.removePolylines();
             map.removeMarkers();
             for(i=0;i<data.length;i++){
-                map.addMarker({
-                    lat: data[i].get_position[data[i].get_position.length -1].latitud,
-                    lng: data[i].get_position[data[i].get_position.length -1].longitud,
-                    title: 'Marker with InfoWindow',
-                    infoWindow: {
-                        content: '<p>'+data[i].nombres+' '+data[i].apellidos+'</p>'
-                    }
-                });
+                if(data[i].get_position.length>0 ){
+                    map.addMarker({
+                        lat: data[i].get_position[data[i].get_position.length -1].latitud,
+                        lng: data[i].get_position[data[i].get_position.length -1].longitud,
+                        title: 'Marker with InfoWindow',
+                        infoWindow: {
+                            content: '<p>'+data[i].nombres+' '+data[i].apellidos+'</p>'
+                        }
+                    });
+                }
             }
         }
 

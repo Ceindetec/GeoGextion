@@ -201,4 +201,26 @@ class HomeController extends Controller
         $response->headers->set('Content-Type', 'text/event-stream');
         return $response;
     }
+
+    public function consulta(){
+        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion','estado')])
+            ->where('estado','A')
+            ->pluck('nombre','identificacion')
+            ->all();
+        return view('consulta.consulta',compact('asesores'));
+    }
+
+    public function resultadoConsulta(Request $request)
+    {
+        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
+            ->whereDate('fecha',$request->fecha)
+        ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
+        ->get();
+        return view('consulta.resultado', compact('geposiciones'));
+    }
+
+    public function modalPunto(Request $request){
+        $geposicion = GeoPosicion::find($request->id);
+        return view('consulta.modalmapapunto',compact('geposicion'));
+    }
 }
