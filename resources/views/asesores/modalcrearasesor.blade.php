@@ -22,12 +22,12 @@
 
             <div class="form-group">
                 <label class="control-label">E-mail</label>
-                {{Form::email('email', null ,['class'=>'form-control', "required"])}}
+                {{Form::email('email', null ,['class'=>'form-control'])}}
             </div>
 
             <div class="form-group">
                 <label class="control-label">Telefono</label>
-                {{Form::text('telefono', null ,['class'=>'form-control', "required", "data-parsley-type"=>"number", "maxlength"=>"10"])}}
+                {{Form::text('telefono', null ,['class'=>'form-control',  "data-parsley-type"=>"number", "maxlength"=>"10"])}}
             </div>
     </div>
     <div class="modal-footer">

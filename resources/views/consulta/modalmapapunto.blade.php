@@ -19,8 +19,7 @@
 <script>
     $(function () {
         initMap()
-
-    })
+    });
     var map;
     function initMap() {
         setTimeout(function () {

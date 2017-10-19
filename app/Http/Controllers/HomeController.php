@@ -66,7 +66,7 @@ class HomeController extends Controller
         try{
             $validator = \Validator::make($request->all(), [
                 'identificacion' => 'required|unique:asesores|max:11',
-                'email' => 'required|unique:asesores',
+                'email' => 'unique:asesores',
             ]);
 
             if ($validator->fails()) {
@@ -98,7 +98,7 @@ class HomeController extends Controller
                 if($asesor->email != $request->email){
                     $validator = \Validator::make($request->all(), [
                         'identificacion' => 'required|unique:asesores|max:11',
-                        'email' => 'required|unique:asesores',
+                        'email' => 'unique:asesores',
                     ]);
 
                     if ($validator->fails()) {
@@ -115,7 +115,7 @@ class HomeController extends Controller
                 }
             }else if($asesor->email != $request->email){
                 $validator = \Validator::make($request->all(), [
-                    'email' => 'required|unique:asesores',
+                    'email' => 'unique:asesores',
                 ]);
 
                 if ($validator->fails()) {
@@ -216,7 +216,19 @@ class HomeController extends Controller
             ->whereDate('fecha',$request->fecha)
         ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
         ->get();
-        return view('consulta.resultado', compact('geposiciones'));
+        return view('consulta.resultado', compact('geposiciones', 'request'));
+    }
+
+    public function exportarPdf(Request $request)
+    {
+        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
+            ->whereDate('fecha',$request->fecha)
+            ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
+            ->get();
+        $data=['geposiciones'=>$geposiciones];
+        $pdf = \PDF::loadView('consulta.exportarpdfconsulta', $data);
+        $pdf->setPaper('A4', 'landscape');
+        return $pdf->download('geoposiciones - '.Carbon::now()->format('d-m-Y').'.pdf');
     }
 
     public function modalPunto(Request $request){

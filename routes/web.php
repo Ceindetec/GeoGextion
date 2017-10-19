@@ -36,6 +36,7 @@ Route::get('updatemarketgeneral', 'HomeController@updatemarketgeneral')->name('u
 Route::get('consulta', 'HomeController@consulta')->name('consulta');
 Route::get('resultadoconsulta', 'HomeController@resultadoConsulta')->name('resultadoconsulta');
 Route::get('modalpunto', 'HomeController@modalPunto')->name('modalpunto');
+Route::get('exportarpdf', 'HomeController@exportarPdf')->name('exportarpdf');
 
 
 Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
@@ -52,3 +53,20 @@ Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail'
 Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm');
 Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+
+
+Route::get('mapas', function(){
+    $config = array();
+    $config['center'] = 'auto';
+    $config['onboundschanged'] = 'if (!centreGot) {
+            var mapCentre = map.getCenter();
+            marker_0.setOptions({
+                position: new google.maps.LatLng(mapCentre.lat(), mapCentre.lng())
+            });
+        }
+        centreGot = true;';
+    app('map')->initialize($config);
+    $direccion = app('map')->get_address_from_lat_long('4.1359736','-73.6073006');
+    dd($direccion);
+
+});
