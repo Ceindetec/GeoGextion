@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
+use PHPExcel_Worksheet_Drawing;
 
 class HomeController extends Controller
 {
@@ -229,6 +230,76 @@ class HomeController extends Controller
         $pdf = \PDF::loadView('consulta.exportarpdfconsulta', $data);
         $pdf->setPaper('A4', 'landscape');
         return $pdf->download('geoposiciones - '.Carbon::now()->format('d-m-Y').'.pdf');
+    }
+
+    public function exportarExcel(Request $request)
+    {
+        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
+            ->whereDate('fecha',$request->fecha)
+            ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
+            ->get();
+
+        \Excel::create('Geoposiciones', function ($excel) use ($request, $geposiciones) {
+            $fecha1 = $request->fecha1;
+            $fecha2 = $request->fecha2;
+            $rango = $fecha1 . " - " . $fecha2;
+            $excel->sheet('Geoposiciones', function ($sheet) use ($geposiciones, $rango) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE POSICIONAMIENTO DEL ASESOR'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+                $sheet->row(3, array('', 'IDENTIFICACION:', $geposiciones[0]->getAsesor->identificacion, ''));
+                $sheet->row(4, array('', 'NOMBRE DEL ASESOR:', $geposiciones[0]->getAsesor->nombres.' '.$geposiciones[0]->getAsesor->apellidos, ''));
+                $sheet->row(5, array('', 'Fecha GENERACION:', $hoy, ''));
+
+                $fila = 9;
+                if (sizeof($geposiciones) > 0) {
+                    $sheet->row(8, array('Fecha', 'Coordenadas', 'Direccion'));
+                    $sheet->row(8, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+                    foreach ($geposiciones as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->fecha,
+                                $miresul->latitud.', '.$miresul->longitud,
+                                $miresul->direccion
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xls');
     }
 
     public function modalPunto(Request $request){

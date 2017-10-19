@@ -8,6 +8,9 @@
                 <a href="{{route('exportarpdf',['asesor'=>$request->asesor,'fecha'=>$request->fecha,'hora1'=>$request->hora1,'hora2'=>$request->hora2])}}" class="btn btn-success " data-placement="bottom" data-toggle="tooltip" title="PDF">
                     <i class="fa fa-file-pdf-o" aria-hidden="true"></i>
                 </a>
+                <a href="{{route('exportarexcel',['asesor'=>$request->asesor,'fecha'=>$request->fecha,'hora1'=>$request->hora1,'hora2'=>$request->hora2])}}" class="btn btn-success " data-placement="bottom" data-toggle="tooltip" title="EXCEL">
+                    <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                </a>
             </div>
             <table id="table-posiciones" class="table table-striped table-bordered" width="100%">
                 <thead>

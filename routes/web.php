@@ -37,6 +37,7 @@ Route::get('consulta', 'HomeController@consulta')->name('consulta');
 Route::get('resultadoconsulta', 'HomeController@resultadoConsulta')->name('resultadoconsulta');
 Route::get('modalpunto', 'HomeController@modalPunto')->name('modalpunto');
 Route::get('exportarpdf', 'HomeController@exportarPdf')->name('exportarpdf');
+Route::get('exportarexcel', 'HomeController@exportarExcel')->name('exportarexcel');
 
 
 Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
