@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class AdminUser extends Seeder
+class RoleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -21,9 +21,7 @@ class AdminUser extends Seeder
             "name" => "Administrador",
             "slug" => "admin",
             "Description" => "Control total del sistema"
-        ]);
-
-        DB::table('roles')->insert(
+        ],
             [
                 "name" => "Supervisor",
                 "slug" => "super",

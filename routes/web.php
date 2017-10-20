@@ -55,6 +55,20 @@ Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm
 Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
+/*inicia supervisores*/
+Route::get('listasupervisores', 'HomeController@listaSupervisores')->name('listasupervisores');
+Route::get('gridasupervisores', 'HomeController@gridSupervisores')->name('gridasupervisores');
+Route::get('supervisor/crear', 'HomeController@viewCrearSupervisor')->name('supervisor.crear');
+Route::post('supervisor/crear', 'HomeController@crearSupervisor');
+Route::get('supervisor/editar/{id}', 'HomeController@viewEditarSupervisor')->name('supervisor.editar');
+Route::post('supervisor/editar/{id}', 'HomeController@editarSupervisor');
+Route::post('supervisor/cambiarestado', 'HomeController@cambiarEstadoSupervisor')->name('supervisor.cambiarestado');
+Route::get('supervisor/asociar/{id}', 'HomeController@asociarAsesorSupervisor')->name('supervisor.asociar');
+Route::get('supervisor/gridnoasesores/{id}', 'HomeController@gridNoAsesores')->name('gridnoasesores');
+
+
+/*termina supervisores*/
+
 
 Route::get('mapas', function(){
     $config = array();

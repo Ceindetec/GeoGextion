@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Asesores;
 use App\GeoPosicion;
+use App\User;
+use App\UserAsesor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 use PHPExcel_Worksheet_Drawing;
+use Caffeinated\Shinobi;
 
 class HomeController extends Controller
 {
@@ -29,42 +32,46 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion','estado')])
-            ->where('estado','A')
-            ->pluck('nombre','identificacion')
+        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+            ->where('estado', 'A')
+            ->pluck('nombre', 'identificacion')
             ->all();
-        $asesores = array_add($asesores,'','Seleccione');
+        $asesores = array_add($asesores, '', 'Seleccione');
         arsort($asesores);
         return view('home', compact('asesores'));
     }
 
-    public function listaAsesores(){
+    public function listaAsesores()
+    {
         return view('asesores.listaasesores');
     }
 
-    public function gridAsesores(){
+    public function gridAsesores()
+    {
         $asesores = Asesores::all();
         return DataTables::of($asesores)
-            ->addColumn('action',function ($asesores){
+            ->addColumn('action', function ($asesores) {
                 $acciones = '<div class="btn-group">';
-                $acciones .= '<a class="btn btn-xs btn-success" data-modal href="'.route('asesor.editar', $asesores->id).'">Editar</a>';
+                $acciones .= '<a class="btn btn-xs btn-success" data-modal href="' . route('asesor.editar', $asesores->id) . '">Editar</a>';
                 if ($asesores->estado == 'A')
-                    $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado('.$asesores->id.')">Inactivar</button>';
+                    $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $asesores->id . ')">Inactivar</button>';
                 else
-                    $acciones .= '<button class="btn btn-xs btn-success" onclick="cambiarestado('.$asesores->id.')">Activar</button>';
-                $acciones .='</div>';
+                    $acciones .= '<button class="btn btn-xs btn-success" onclick="cambiarestado(' . $asesores->id . ')">Activar</button>';
+                $acciones .= '</div>';
                 return $acciones;
             })
             ->make(true);
     }
 
-    public function viewCrearAsesor(){
+    public function viewCrearAsesor()
+    {
         return view('asesores.modalcrearasesor');
     }
 
-    public function crearAsesor(Request $request){
-        $result=[];
-        try{
+    public function crearAsesor(Request $request)
+    {
+        $result = [];
+        try {
             $validator = \Validator::make($request->all(), [
                 'identificacion' => 'required|unique:asesores|max:11',
                 'email' => 'unique:asesores',
@@ -76,27 +83,29 @@ class HomeController extends Controller
 
             $asesor = new Asesores($request->all());
             $asesor->save();
-            $result['estado']=true;
-            $result['mensaje']='Asesor agregado satisfactoriamente.';
-        }catch (\Exception $exception){
-            $result['estado']=false;
-            $result['mensaje']='Asesor agregado satisfactoriamente. '.$exception->getMessage();
+            $result['estado'] = true;
+            $result['mensaje'] = 'Asesor agregado satisfactoriamente.';
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'Asesor agregado satisfactoriamente. ' . $exception->getMessage();
         }
         return $result;
 
     }
 
-    public function viewEditarAsesor($id){
+    public function viewEditarAsesor($id)
+    {
         $asesor = Asesores::find($id);
-        return view('asesores.modaleditarasesor',compact('asesor'));
+        return view('asesores.modaleditarasesor', compact('asesor'));
     }
 
-    public function editarAsesor(Request $request, $id){
+    public function editarAsesor(Request $request, $id)
+    {
         $result = [];
-        try{
+        try {
             $asesor = Asesores::find($id);
-            if($asesor->identificacion  != $request->identificacion){
-                if($asesor->email != $request->email){
+            if ($asesor->identificacion != $request->identificacion) {
+                if ($asesor->email != $request->email) {
                     $validator = \Validator::make($request->all(), [
                         'identificacion' => 'required|unique:asesores|max:11',
                         'email' => 'unique:asesores',
@@ -105,7 +114,7 @@ class HomeController extends Controller
                     if ($validator->fails()) {
                         return $validator->errors()->all();
                     }
-                }else{
+                } else {
                     $validator = \Validator::make($request->all(), [
                         'identificacion' => 'required|unique:asesores|max:11',
                     ]);
@@ -114,7 +123,7 @@ class HomeController extends Controller
                         return $validator->errors()->all();
                     }
                 }
-            }else if($asesor->email != $request->email){
+            } else if ($asesor->email != $request->email) {
                 $validator = \Validator::make($request->all(), [
                     'email' => 'unique:asesores',
                 ]);
@@ -126,68 +135,73 @@ class HomeController extends Controller
             $asesor->update($request->all());
             $result['estado'] = true;
             $result['mensaje'] = 'Asesor actulizado satisfactoriamente.';
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
             $result['estado'] = false;
-            $result['mensaje'] = 'No fue posible actualizar al asesor. '.$exception->getMessage();
+            $result['mensaje'] = 'No fue posible actualizar al asesor. ' . $exception->getMessage();
         }
         return $result;
     }
 
-    public function cambiarEstadoAsesor(Request $request){
+    public function cambiarEstadoAsesor(Request $request)
+    {
         $result = [];
-        try{
+        try {
             $asesor = Asesores::find($request->id);
-            if($asesor->estado == 'A'){
-                $asesor->estado='I';
-            }else{
+            if ($asesor->estado == 'A') {
+                $asesor->estado = 'I';
+            } else {
                 $asesor->estado = 'A';
             }
             $asesor->save();
-            $result['estado']= true;
+            $result['estado'] = true;
             $result['mensaje'] = 'Se cambiado el estado satisfactoriamente';
-        }catch (\Exception $exception){
-            $result['estado']= false;
-            $result['mensaje'] = 'No fue posible cambiar el estado '.$exception->getMessage();
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'No fue posible cambiar el estado ' . $exception->getMessage();
         }
         return $result;
     }
 
-    public function geoPosicionfinal(){
-        $markets = Asesores::where('estado','A')->get();
-        foreach ($markets as $market){
+    public function geoPosicionfinal()
+    {
+        $markets = Asesores::where('estado', 'A')->get();
+        foreach ($markets as $market) {
             $market->getPosition;
         }
         return $markets;
     }
 
-    public function ubicarasesor(Request $request){
-        $markets = Asesores::where('estado','A')
-            ->where('identificacion',$request->identificacion)
+    public function ubicarasesor(Request $request)
+    {
+        $markets = Asesores::where('estado', 'A')
+            ->where('identificacion', $request->identificacion)
             ->first();
         $markets->getPosition;
         return $markets;
     }
 
-    public function rutaasesor(Request $request){
-        $markets = Asesores::where('estado','A')
-            ->where('identificacion',$request->identificacion)->first();
+    public function rutaasesor(Request $request)
+    {
+        $markets = Asesores::where('estado', 'A')
+            ->where('identificacion', $request->identificacion)->first();
         $markets = $markets->getRuta($request->fecha)->get();
 
         return $markets;
     }
 
-    public function updatemarketgeneral(){
-        $response = new StreamedResponse(function() {
-            $old_fecha = GeoPosicion::whereDate('fecha',Carbon::now()->format('Y-m-d'))
-                ->orderBy('fecha','desc')->first();
+    public function updatemarketgeneral()
+    {
+        $response = new StreamedResponse(function () {
+            $old_fecha = GeoPosicion::whereDate('fecha', Carbon::now()->format('Y-m-d'))
+                ->orderBy('fecha', 'desc')->first();
 
             while (true) {
-                $new_fecha = GeoPosicion::whereDate('fecha',Carbon::now()->format('Y-m-d'))
-                    ->orderBy('fecha','desc')->first();
+                $new_fecha = GeoPosicion::whereDate('fecha', Carbon::now()->format('Y-m-d'))
+                    ->orderBy('fecha', 'desc')->first();
 
                 if ($new_fecha->fecha > $old_fecha->fecha) {
-                    $markets = Asesores::where('estado','A')->get();
-                    foreach ($markets as $market){
+                    $markets = Asesores::where('estado', 'A')->get();
+                    foreach ($markets as $market) {
                         $market->getPosition;
                     }
                     echo 'data: ' . json_encode($markets) . "\n\n";
@@ -203,40 +217,41 @@ class HomeController extends Controller
         return $response;
     }
 
-    public function consulta(){
-        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion','estado')])
-            ->where('estado','A')
-            ->pluck('nombre','identificacion')
+    public function consulta()
+    {
+        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+            ->where('estado', 'A')
+            ->pluck('nombre', 'identificacion')
             ->all();
-        return view('consulta.consulta',compact('asesores'));
+        return view('consulta.consulta', compact('asesores'));
     }
 
     public function resultadoConsulta(Request $request)
     {
-        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
-            ->whereDate('fecha',$request->fecha)
-        ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
-        ->get();
+        $geposiciones = GeoPosicion::where('identificacion', $request->asesor)
+            ->whereDate('fecha', $request->fecha)
+            ->whereBetween('fecha', [$request->fecha . " " . $request->hora1, $request->fecha . " " . $request->hora2])
+            ->get();
         return view('consulta.resultado', compact('geposiciones', 'request'));
     }
 
     public function exportarPdf(Request $request)
     {
-        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
-            ->whereDate('fecha',$request->fecha)
-            ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
+        $geposiciones = GeoPosicion::where('identificacion', $request->asesor)
+            ->whereDate('fecha', $request->fecha)
+            ->whereBetween('fecha', [$request->fecha . " " . $request->hora1, $request->fecha . " " . $request->hora2])
             ->get();
-        $data=['geposiciones'=>$geposiciones];
+        $data = ['geposiciones' => $geposiciones];
         $pdf = \PDF::loadView('consulta.exportarpdfconsulta', $data);
         $pdf->setPaper('A4', 'landscape');
-        return $pdf->download('geoposiciones - '.Carbon::now()->format('d-m-Y').'.pdf');
+        return $pdf->download('geoposiciones - ' . Carbon::now()->format('d-m-Y') . '.pdf');
     }
 
     public function exportarExcel(Request $request)
     {
-        $geposiciones = GeoPosicion::where('identificacion',$request->asesor)
-            ->whereDate('fecha',$request->fecha)
-            ->whereBetween('fecha',[$request->fecha." ".$request->hora1, $request->fecha." ".$request->hora2])
+        $geposiciones = GeoPosicion::where('identificacion', $request->asesor)
+            ->whereDate('fecha', $request->fecha)
+            ->whereBetween('fecha', [$request->fecha . " " . $request->hora1, $request->fecha . " " . $request->hora2])
             ->get();
 
         \Excel::create('Geoposiciones', function ($excel) use ($request, $geposiciones) {
@@ -277,7 +292,7 @@ class HomeController extends Controller
                 $sheet->setBorder('A1:A4', 'thin');
 
                 $sheet->row(3, array('', 'IDENTIFICACION:', $geposiciones[0]->getAsesor->identificacion, ''));
-                $sheet->row(4, array('', 'NOMBRE DEL ASESOR:', $geposiciones[0]->getAsesor->nombres.' '.$geposiciones[0]->getAsesor->apellidos, ''));
+                $sheet->row(4, array('', 'NOMBRE DEL ASESOR:', $geposiciones[0]->getAsesor->nombres . ' ' . $geposiciones[0]->getAsesor->apellidos, ''));
                 $sheet->row(5, array('', 'Fecha GENERACION:', $hoy, ''));
 
                 $fila = 9;
@@ -289,7 +304,7 @@ class HomeController extends Controller
                     foreach ($geposiciones as $miresul) {
                         $sheet->row($fila,
                             array($miresul->fecha,
-                                $miresul->latitud.', '.$miresul->longitud,
+                                $miresul->latitud . ', ' . $miresul->longitud,
                                 $miresul->direccion
                             ));
                         $fila++;
@@ -302,8 +317,164 @@ class HomeController extends Controller
         })->export('xls');
     }
 
-    public function modalPunto(Request $request){
+    public function modalPunto(Request $request)
+    {
         $geposicion = GeoPosicion::find($request->id);
-        return view('consulta.modalmapapunto',compact('geposicion'));
+        return view('consulta.modalmapapunto', compact('geposicion'));
+    }
+
+
+    public function listaSupervisores()
+    {
+        return view('supervisores.liestasupervisores');
+    }
+
+    public function viewCrearSupervisor()
+    {
+        return view('supervisores.modalcrearsupervisor');
+    }
+
+    public function crearSupervisor(Request $request)
+    {
+        $result = [];
+        try {
+            $validator = \Validator::make($request->all(), [
+                'identificacion' => 'required|unique:asesores|max:11',
+                'email' => 'required|unique:users',
+            ]);
+
+            if ($validator->fails()) {
+                return $validator->errors()->all();
+            }
+
+            $supervisor = new User();
+            $supervisor->name = $request->nombres;
+            $supervisor->email = $request->email;
+            $supervisor->identifiacion = trim($request->identificacion);
+            $supervisor->nombres = trim($request->nombres);
+            $supervisor->apellidos = trim($request->apellidos);
+            $supervisor->telefono = $request->telefono;
+            $supervisor->password = bcrypt(trim($request->identificacion));
+            $supervisor->save();
+            $supervisor->assignRole(2);
+            $result['estado'] = true;
+            $result['mensaje'] = 'supervisor agregado satisfactoriamente.';
+
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+    public function gridSupervisores()
+    {
+        $supervisores = User::join('role_user', 'users.id', 'role_user.user_id')->where('role_user.role_id', 2)->select('users.*')->get();
+        return DataTables::of($supervisores)
+            ->addColumn('action', function ($supervisores) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<a class="btn btn-xs btn-success" data-modal href="' . route('supervisor.editar', $supervisores->id) . '">Editar</a>';
+                $acciones .= '<a class="btn btn-xs btn-primary" data-modal="modal-lg" href="' . route('supervisor.asociar', $supervisores->id) . '">Asesores</a>';
+                if ($supervisores->estado == 'A')
+                    $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $supervisores->id . ')">Inactivar</button>';
+                else
+                    $acciones .= '<button class="btn btn-xs btn-success" onclick="cambiarestado(' . $supervisores->id . ')">Activar</button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+    public function viewEditarSupervisor($id)
+    {
+        $supervisor = User::find($id);
+        return view('supervisores.modaleditarsupervisor', compact('supervisor'));
+    }
+
+    public function editarSupervisor(Request $request, $id)
+    {
+        $result = [];
+        try {
+            $supervisor = User::find($id);
+            if ($supervisor->identifiacion != $request->identifiacion) {
+                if ($supervisor->email != $request->email) {
+                    $validator = \Validator::make($request->all(), [
+                        'identifiacion' => 'required|unique:users|max:11',
+                        'email' => 'required|unique:users',
+                    ]);
+                    if ($validator->fails()) {
+                        return $validator->errors()->all();
+                    }
+                } else {
+                    $validator = \Validator::make($request->all(), [
+                        'identifiacion' => 'required|unique:users|max:11',
+                    ]);
+
+                    if ($validator->fails()) {
+                        return $validator->errors()->all();
+                    }
+                }
+            } else if ($supervisor->email != $request->email) {
+                $validator = \Validator::make($request->all(), [
+                    'email' => 'required|unique:users',
+                ]);
+
+                if ($validator->fails()) {
+                    return $validator->errors()->all();
+                }
+            }
+            $supervisor->update($request->all());
+            $result['estado'] = true;
+            $result['mensaje'] = 'supervisor actulizado satisfactoriamente.';
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'No fue posible actualizar al supervisor. ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+    public function cambiarEstadoSupervisor(Request $request)
+    {
+        $result = [];
+        try {
+            $supervisor = User::find($request->id);
+            if ($supervisor->estado == 'A') {
+                $supervisor->estado = 'I';
+            } else {
+                $supervisor->estado = 'A';
+            }
+            $supervisor->save();
+            $result['estado'] = true;
+            $result['mensaje'] = 'Se cambiado el estado satisfactoriamente';
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'No fue posible cambiar el estado ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+    public function asociarAsesorSupervisor($id)
+    {
+        $supervisor = User::find($id);
+        return view('supervisores.modalasignarasesor', compact('supervisor'));
+    }
+
+    public function gridNoAsesores($id)
+    {
+        $userAsesor = UserAsesor::where('user_id',$id)->get();
+        if(count($userAsesor) == 0){
+            $asesores = Asesores::all();
+        }else{
+            $asesores = Asesores::leftJoin('user_asesors','asesores.id','user_asesors.asesore_id')->where('user_asesors.user_id','<>',$id)->get();
+        }
+
+        return DataTables::of($asesores)
+            ->addColumn('action', function ($asesores) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $asesores->id . ')">Inactivar</button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
     }
 }

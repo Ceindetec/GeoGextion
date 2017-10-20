@@ -1,5 +1,5 @@
 <div id="modaleditarasesores">
-    {{Form::model($asesor,['route'=>['asesor.editarp',$asesor->id], 'class'=>'form-horizontal', 'id'=>'editarasesor'])}}
+    {{Form::model($supervisor,['route'=>['supervisor.editar',$supervisor->id], 'class'=>'form-horizontal', 'id'=>'editarasesor'])}}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
         <h4 class="modal-title">Editar asesor</h4>
@@ -7,7 +7,7 @@
     <div class="modal-body">
         <div class="form-group">
             <label class="control-label">Identificacion</label>
-            {{Form::text('identificacion', null ,['class'=>'form-control', "required", "maxlength"=>"10", "data-parsley-type"=>"number"])}}
+            {{Form::text('identifiacion', null ,['class'=>'form-control', "required", "maxlength"=>"10", "data-parsley-type"=>"number"])}}
         </div>
 
         <div class="form-group">
@@ -22,7 +22,7 @@
 
         <div class="form-group">
             <label class="control-label">E-mail</label>
-            {{Form::email('email', null ,['class'=>'form-control'])}}
+            {{Form::email('email', null ,['class'=>'form-control', "required"])}}
         </div>
 
         <div class="form-group">
