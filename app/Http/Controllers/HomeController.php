@@ -8,10 +8,11 @@ use App\User;
 use App\UserAsesor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 use PHPExcel_Worksheet_Drawing;
-use Caffeinated\Shinobi;
+use Caffeinated\Shinobi\Facades\Shinobi;
 
 class HomeController extends Controller
 {
@@ -32,10 +33,19 @@ class HomeController extends Controller
      */
     public function index()
     {
-        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-            ->where('estado', 'A')
-            ->pluck('nombre', 'identificacion')
-            ->all();
+        if (Shinobi::isRole('admin')) {
+            $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('estado', 'A')
+                ->pluck('nombre', 'identificacion')
+                ->all();
+        } else {
+            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+                ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('asesores.estado', 'A')
+                ->where('user_asesors.user_id', Auth::User()->id)
+                ->pluck('nombre', 'identificacion')
+                ->all();
+        }
         $asesores = array_add($asesores, '', 'Seleccione');
         arsort($asesores);
         return view('home', compact('asesores'));
@@ -48,7 +58,15 @@ class HomeController extends Controller
 
     public function gridAsesores()
     {
-        $asesores = Asesores::all();
+        if (Shinobi::isRole('admin')) {
+            $asesores = Asesores::all();
+        } else {
+            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+                ->select('asesores.*')
+                ->where('asesores.estado', 'A')
+                ->where('user_asesors.user_id', Auth::User()->id)
+                ->get();
+        }
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
                 $acciones = '<div class="btn-group">';
@@ -164,7 +182,13 @@ class HomeController extends Controller
 
     public function geoPosicionfinal()
     {
-        $markets = Asesores::where('estado', 'A')->get();
+        if (Shinobi::isRole('admin')) {
+            $markets = Asesores::where('estado', 'A')->get();
+        } else {
+            $markets = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+                ->where('user_asesors.user_id', Auth::User()->id)
+                ->where('estado', 'A')->get();
+        }
         foreach ($markets as $market) {
             $market->getPosition;
         }
@@ -219,10 +243,19 @@ class HomeController extends Controller
 
     public function consulta()
     {
-        $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-            ->where('estado', 'A')
-            ->pluck('nombre', 'identificacion')
-            ->all();
+        if (Shinobi::isRole('admin')){
+            $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('estado', 'A')
+                ->pluck('nombre', 'identificacion')
+                ->all();
+        } else {
+            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+                ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('asesores.estado', 'A')
+                ->where('user_asesors.user_id', Auth::User()->id)
+                ->pluck('nombre', 'identificacion')
+                ->all();
+        }
         return view('consulta.consulta', compact('asesores'));
     }
 
@@ -461,11 +494,16 @@ class HomeController extends Controller
 
     public function gridNoAsesores($id)
     {
-        $userAsesor = UserAsesor::where('user_id',$id)->get();
-        if(count($userAsesor) == 0){
+        $userAsesor = UserAsesor::where('user_id', $id)->get(['asesore_id']);
+        $arrayAsesor = [];
+        if (count($userAsesor) == 0) {
             $asesores = Asesores::all();
-        }else{
-            $asesores = Asesores::leftJoin('user_asesors','asesores.id','user_asesors.asesore_id')->where('user_asesors.user_id','<>',$id)->get();
+        } else {
+            for ($i = 0; $i < count($userAsesor); $i++) {
+                $arrayAsesor[$i] = $userAsesor[$i]->asesore_id;
+            }
+
+            $asesores = Asesores::whereNotIn('id', $arrayAsesor)->get();
         }
 
         return DataTables::of($asesores)
@@ -476,5 +514,41 @@ class HomeController extends Controller
                 return $acciones;
             })
             ->make(true);
+    }
+
+    public function gridSiAsesores($id)
+    {
+        $userAsesor = UserAsesor::where('user_id', $id)->get();
+
+        $asesores = Asesores::leftJoin('user_asesors', 'asesores.id', 'user_asesors.asesore_id')->where('user_asesors.user_id', $id)->get(['asesores.*']);
+
+
+        return DataTables::of($asesores)
+            ->addColumn('action', function ($asesores) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<button class="btn btn-xs btn-danger" onclick="quitar(' . $asesores->id . ')"><i class="fa fa-minus-square" aria-hidden="true"></i></button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+    public function agregaAsesor(Request $request)
+    {
+        $userAsesor = new UserAsesor();
+        $userAsesor->user_id = $request->idsuper;
+        $userAsesor->asesore_id = $request->id;
+        $userAsesor->save();
+        $result['estado'] = TRUE;
+        $result['mensaje'] = 'agregado';
+        return $result;
+    }
+
+    public function quitarAsesor(Request $request)
+    {
+        UserAsesor::where('user_id', $request->idsuper)->where('asesore_id', $request->id)->delete();
+        $result['estado'] = TRUE;
+        $result['mensaje'] = 'Eliminado';
+        return $result;
     }
 }

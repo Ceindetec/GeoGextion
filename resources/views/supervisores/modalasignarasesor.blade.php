@@ -38,8 +38,9 @@
 </div>
 
 <script>
+    var table2, table3;
     $(function () {
-        table = $('#noasesores').DataTable({
+        table2 = $('#noasesores').DataTable({
             processing: true,
             serverSide: true,
             "language": {
@@ -56,5 +57,117 @@
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
         });
-    })
+
+        table3 = $('#asesores').DataTable({
+            processing: true,
+            serverSide: true,
+            "language": {
+                "url": "{!!route('datatable_es')!!}"
+            },
+            ajax: {
+                url: "{!!route('gridsiasesores', $supervisor->id)!!}",
+                "type": "get"
+            },
+            columns: [
+                {data: 'identificacion', name: 'identificacion'},
+                {data: 'nombres', name: 'nombres'},
+                {data: 'apellidos', name: 'apellidos'},
+                {data: 'action', name: 'action', orderable: false, searchable: false}
+            ],
+        });
+    });
+
+    function quitar(id) {
+        $.ajax({
+            url: '{{route('supervisor.quitarasesor')}}',
+            data: {id: id,idsuper:'{{$supervisor->id}}'},
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function () {
+                cargando();
+            },
+            success: function (result) {
+                if (result.estado) {
+
+                } else if (result.estado == false) {
+                    swal(
+                        'Error!!',
+                        result.mensaje,
+                        'error'
+                    )
+                } else {
+                    html = '';
+                    for (i = 0; i < result.length; i++) {
+                        html += result[i] + '\n\r';
+                    }
+                    swal(
+                        'Error!!',
+                        html,
+                        'error'
+                    )
+                }
+                table2.ajax.reload();
+                table3.ajax.reload();
+            },
+            error: function (xhr, status) {
+                var message = "Error de ejecución: " + xhr.status + " " + xhr.statusText;
+                swal(
+                    'Error!!',
+                    message,
+                    'error'
+                )
+            },
+            // código a ejecutar sin importar si la petición falló o no
+            complete: function (xhr, status) {
+                fincarga();
+            }
+        });
+    }
+
+    function agregar(id) {
+        $.ajax({
+            url: '{{route('supervisor.agregaasesor')}}',
+            data: {id: id,idsuper:'{{$supervisor->id}}'},
+            type: 'POST',
+            dataType: 'json',
+            beforeSend: function () {
+                cargando();
+            },
+            success: function (result) {
+                if (result.estado) {
+
+                } else if (result.estado == false) {
+                    swal(
+                        'Error!!',
+                        result.mensaje,
+                        'error'
+                    )
+                } else {
+                    html = '';
+                    for (i = 0; i < result.length; i++) {
+                        html += result[i] + '\n\r';
+                    }
+                    swal(
+                        'Error!!',
+                        html,
+                        'error'
+                    )
+                }
+                table2.ajax.reload();
+                table3.ajax.reload();
+            },
+            error: function (xhr, status) {
+                var message = "Error de ejecución: " + xhr.status + " " + xhr.statusText;
+                swal(
+                    'Error!!',
+                    message,
+                    'error'
+                )
+            },
+            // código a ejecutar sin importar si la petición falló o no
+            complete: function (xhr, status) {
+                fincarga();
+            }
+        });
+    }
 </script>

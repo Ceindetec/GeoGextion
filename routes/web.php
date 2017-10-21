@@ -65,6 +65,9 @@ Route::post('supervisor/editar/{id}', 'HomeController@editarSupervisor');
 Route::post('supervisor/cambiarestado', 'HomeController@cambiarEstadoSupervisor')->name('supervisor.cambiarestado');
 Route::get('supervisor/asociar/{id}', 'HomeController@asociarAsesorSupervisor')->name('supervisor.asociar');
 Route::get('supervisor/gridnoasesores/{id}', 'HomeController@gridNoAsesores')->name('gridnoasesores');
+Route::get('supervisor/gridsiasesores/{id}', 'HomeController@gridSiAsesores')->name('gridsiasesores');
+Route::post('supervisor/agregaasesor', 'HomeController@agregaAsesor')->name('supervisor.agregaasesor');
+Route::post('supervisor/quitarasesor', 'HomeController@quitarAsesor')->name('supervisor.quitarasesor');
 
 
 /*termina supervisores*/

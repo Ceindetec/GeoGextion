@@ -113,6 +113,7 @@
                     },
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
+                @role('admin')
                 dom: "Bfrtip",
                 buttons: [
                     {
@@ -143,6 +144,7 @@
                         className:'btn-sm btn-success'
                     }
                 ],
+                @endrole
                 order: [[1, 'asc']]
             });
 
