@@ -471,7 +471,7 @@ class HomeController extends Controller
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
                 $acciones = '<div class="btn-group">';
-                $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $asesores->id . ')">Inactivar</button>';
+                $acciones .= '<button class="btn btn-xs btn-success" onclick="agregar(' . $asesores->id . ')"><i class="fa fa-plus-square" aria-hidden="true"></i></button>';
                 $acciones .= '</div>';
                 return $acciones;
             })
