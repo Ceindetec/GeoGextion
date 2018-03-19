@@ -1,8 +1,8 @@
-<div id="modaleditarasesores">
-    {{Form::model($supervisor,['route'=>['supervisor.editar',$supervisor->id], 'class'=>'form-horizontal', 'id'=>'editarasesor'])}}
+<div id="modalcrearadministrador">
+    {{Form::open(['route'=>['administrador.crear'], 'class'=>'form-horizontal', 'id'=>'crearsupervisor'])}}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h4 class="modal-title">Editar asesor</h4>
+        <h4 class="modal-title">Agregar un Adminstrador</h4>
     </div>
     <div class="modal-body">
         <div class="form-group">
@@ -22,12 +22,12 @@
 
         <div class="form-group">
             <label class="control-label">E-mail</label>
-            {{Form::email('email', null ,['class'=>'form-control', "required"])}}
+            {{Form::email('email', null ,['class'=>'form-control', 'required'])}}
         </div>
 
         <div class="form-group">
             <label class="control-label">Telefono</label>
-            {{Form::text('telefono', null ,['class'=>'form-control', "data-parsley-type"=>"number", "maxlength"=>"10"])}}
+            {{Form::text('telefono', null ,['class'=>'form-control',  "data-parsley-type"=>"number", "maxlength"=>"10"])}}
         </div>
     </div>
     <div class="modal-footer">
@@ -39,8 +39,8 @@
 
 <script>
     $(function () {
-        $("#editarasesor").parsley();
-        $("#editarasesor").submit(function (e) {
+        $("#crearsupervisor").parsley();
+        $("#crearsupervisor").submit(function (e) {
             e.preventDefault();
             var form = $(this);
             $.ajax({

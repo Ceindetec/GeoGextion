@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Asesores extends Model
 {
     //
-    protected $fillable = ['identificacion','nombres','apellidos','email','telefono'];
+    protected $fillable = ['identificacion','nombres','apellidos','email','telefono','empresa_id'];
 
     public function getPosition(){
         return $this->hasMany('App\GeoPosicion','identificacion','identificacion')

@@ -95,7 +95,7 @@
                 "type": "get"
             },
             columns: [
-                {data: 'identifiacion', name: 'identificacion'},
+                {data: 'identificacion', name: 'identificacion'},
                 {data: 'nombres', name: 'nombres'},
                 {data: 'apellidos', name: 'apellidos'},
                 {data: 'telefono', name: 'telefono'},
@@ -113,6 +113,7 @@
                 },
                 {data: 'action', name: 'action', orderable: false, searchable: false}
             ],
+            @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
             dom: "Bfrtip",
             buttons: [
                 {
@@ -143,6 +144,7 @@
                     className:'btn-sm btn-success'
                 }
             ],
+            @endif
             order: [[1, 'asc']]
         });
 
