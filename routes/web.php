@@ -34,7 +34,7 @@ Route::get('datatable_es', 'IndiomasController@espanol')->name('datatable_es');
 
 //Auth::routes();
 
-Route::group(['middleware' => ['supervisor']], function () {
+Route::group(['middleware' => ['supervisor','validarEstado']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
     Route::get('/asesores', 'HomeController@listaAsesores')->name('listaacesores');
     Route::get('/gridasesores', 'HomeController@gridAsesores')->name('gridasesores');
@@ -63,7 +63,7 @@ Route::group(['middleware' => ['supervisor']], function () {
 
 
 /*inicia superAdminstrador*/
-Route::group(['middleware' => ['superAdmin']], function () {
+Route::group(['middleware' => ['superAdmin','validarEstado']], function () {
     Route::get('listaempresas', 'HomeController@listaEmpresas')->name('listaEmpresas');
     Route::get('gridaempresas', 'HomeController@gridEmpresas')->name('gridaempresas');
     Route::get('empresa/crear', 'HomeController@viewCrearEmpresa')->name('empresa.crear');
@@ -76,7 +76,7 @@ Route::group(['middleware' => ['superAdmin']], function () {
 
 
 /*inicia Adminstrador*/
-Route::group(['middleware' => ['superAdministradorEmpresa']], function () {
+Route::group(['middleware' => ['superAdministradorEmpresa','validarEstado']], function () {
     Route::get('listaadministrador', 'HomeController@listaAdministradores')->name('listaAdministradores');
     Route::get('gridaadministrador', 'HomeController@gridAdministradores')->name('gridaadministradores');
     Route::get('administrador/crear', 'HomeController@viewCrearAdministrador')->name('administrador.crear');
@@ -87,7 +87,7 @@ Route::group(['middleware' => ['superAdministradorEmpresa']], function () {
 });
 
 /*inicia supervisores*/
-Route::group(['middleware' => ['administrador']], function () {
+Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::get('listasupervisores', 'HomeController@listaSupervisores')->name('listasupervisores');
     Route::get('gridasupervisores', 'HomeController@gridSupervisores')->name('gridasupervisores');
     Route::get('supervisor/crear', 'HomeController@viewCrearSupervisor')->name('supervisor.crear');

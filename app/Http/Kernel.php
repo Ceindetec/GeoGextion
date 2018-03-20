@@ -6,6 +6,7 @@ use App\Http\Middleware\Administrador;
 use App\Http\Middleware\SuperAdmin;
 use App\Http\Middleware\SuperAdministradorEmpresa;
 use App\Http\Middleware\Supervisor;
+use App\Http\Middleware\ValidarEstado;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -72,5 +73,6 @@ class Kernel extends HttpKernel
         'superAdministradorEmpresa' =>SuperAdministradorEmpresa::class,
         'administrador' =>Administrador::class,
         'supervisor' =>Supervisor::class,
+        'validarEstado' =>ValidarEstado::class,
     ];
 }
