@@ -17,6 +17,7 @@ class CreateGeoPosicionsTable extends Migration
             $table->bigIncrements('id');
             $table->string('latitud');
             $table->string('longitud');
+            $table->string('direccion')->nullable();
             $table->dateTime('fecha');
             $table->string('identificacion',10)->index();
             $table->foreign('identificacion')->references('identificacion')->on('asesores')->onDelete('cascade');

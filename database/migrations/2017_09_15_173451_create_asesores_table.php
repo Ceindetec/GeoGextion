@@ -21,6 +21,8 @@ class CreateAsesoresTable extends Migration
             $table->string('telefono',10)->nullable();
             $table->string('email',100)->nullable();
             $table->enum('estado',['A','I'])->default('A');
+            $table->integer('empresa_id')->unsigned()->nullable();
+            $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
             $table->timestamps();
         });
     }

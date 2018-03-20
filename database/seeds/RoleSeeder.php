@@ -17,11 +17,22 @@ class RoleSeeder extends Seeder
             'password' => bcrypt('123456789'),
         ]);
 
-        $roleId = DB::table('roles')->insertGetId([
-            "name" => "Administrador",
-            "slug" => "admin",
-            "Description" => "Control total del sistema"
-        ],
+        $roleId = DB::table('roles')->insertGetId(
+            [
+                "name" => "SuperAdmin",
+                "slug" => "superadmin",
+                "Description" => "Control total sistema"
+            ]);
+            DB::table('roles')->insert([
+                "name" => "SuperAdministradorEmpresa",
+                "slug" => "sadminempresa",
+                "Description" => "Control total de la empresa"
+            ],
+            [
+                "name" => "Administrador",
+                "slug" => "admin",
+                "Description" => "Control sobre los supervisores y asesores del sistema"
+            ],
             [
                 "name" => "Supervisor",
                 "slug" => "super",

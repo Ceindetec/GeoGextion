@@ -46,6 +46,13 @@
                                 </h2>
                                 <h5 class="text-uppercase font-bold m-b-5 m-t-50">Ingrese</h5>
                                 <p class="m-b-0"> con su cuenta de administrador</p>
+                                <p>
+                                    @if (session('estado'))
+                                        <span class="text-center" style="color: red">
+                                            <strong class="text-center">{{ session('estado') }}</strong>
+                                        </span>
+                                    @endif
+                                </p>
                             </div>
                             <div class="account-content">
                                 <form class="form-horizontal" method="POST" action="{{ route('login') }}">

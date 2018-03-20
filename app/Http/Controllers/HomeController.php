@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Asesores;
+use App\Empresas;
 use App\GeoPosicion;
 use App\User;
 use App\UserAsesor;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 use PHPExcel_Worksheet_Drawing;
 use Caffeinated\Shinobi\Facades\Shinobi;
+use DB;
 
 class HomeController extends Controller
 {
@@ -33,9 +35,10 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (Shinobi::isRole('admin')) {
+        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')) {
             $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
                 ->where('estado', 'A')
+                ->where('asesores.empresa_id', Auth::user()->empresa_id)
                 ->pluck('nombre', 'identificacion')
                 ->all();
         } else {
@@ -43,6 +46,7 @@ class HomeController extends Controller
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
                 ->where('asesores.estado', 'A')
                 ->where('user_asesors.user_id', Auth::User()->id)
+                ->where('asesores.empresa_id', Auth::user()->empresa_id)
                 ->pluck('nombre', 'identificacion')
                 ->all();
         }
@@ -58,13 +62,14 @@ class HomeController extends Controller
 
     public function gridAsesores()
     {
-        if (Shinobi::isRole('admin')) {
-            $asesores = Asesores::all();
+        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')) {
+            $asesores = Asesores::where('asesores.empresa_id', Auth::user()->empresa_id);
         } else {
             $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->select('asesores.*')
                 ->where('asesores.estado', 'A')
                 ->where('user_asesors.user_id', Auth::User()->id)
+                ->where('asesores.empresa_id', Auth::user()->empresa_id)
                 ->get();
         }
         return DataTables::of($asesores)
@@ -100,6 +105,7 @@ class HomeController extends Controller
             }
 
             $asesor = new Asesores($request->all());
+            $asesor->empresa_id = Auth::user()->empresa_id;
             $asesor->save();
             $result['estado'] = true;
             $result['mensaje'] = 'Asesor agregado satisfactoriamente.';
@@ -243,18 +249,18 @@ class HomeController extends Controller
 
     public function consulta()
     {
-        if (Shinobi::isRole('admin')){
+        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')){
             $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
                 ->where('estado', 'A')
-                ->pluck('nombre', 'identificacion')
-                ->all();
+                ->where('asesores.empresa_id', Auth::user()->empresa_id)
+                ->pluck('nombre', 'identificacion');
         } else {
             $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
                 ->where('asesores.estado', 'A')
                 ->where('user_asesors.user_id', Auth::User()->id)
-                ->pluck('nombre', 'identificacion')
-                ->all();
+                ->where('asesores.empresa_id', Auth::user()->empresa_id)
+                ->pluck('nombre', 'identificacion');
         }
         return view('consulta.consulta', compact('asesores'));
     }
@@ -383,13 +389,14 @@ class HomeController extends Controller
             $supervisor = new User();
             $supervisor->name = $request->nombres;
             $supervisor->email = $request->email;
-            $supervisor->identifiacion = trim($request->identificacion);
+            $supervisor->identificacion = trim($request->identificacion);
             $supervisor->nombres = trim($request->nombres);
             $supervisor->apellidos = trim($request->apellidos);
             $supervisor->telefono = $request->telefono;
             $supervisor->password = bcrypt(trim($request->identificacion));
+            $supervisor->empresa_id = Auth::user()->empresa_id;
             $supervisor->save();
-            $supervisor->assignRole(2);
+            $supervisor->assignRole(4);
             $result['estado'] = true;
             $result['mensaje'] = 'supervisor agregado satisfactoriamente.';
 
@@ -402,7 +409,11 @@ class HomeController extends Controller
 
     public function gridSupervisores()
     {
-        $supervisores = User::join('role_user', 'users.id', 'role_user.user_id')->where('role_user.role_id', 2)->select('users.*')->get();
+        $supervisores = User::join('role_user', 'users.id', 'role_user.user_id')
+            ->where('role_user.role_id', 4)
+            ->where('users.empresa_id', Auth::user()->empresa_id)
+            ->select('users.*')
+            ->get();
         return DataTables::of($supervisores)
             ->addColumn('action', function ($supervisores) {
                 $acciones = '<div class="btn-group">';
@@ -429,10 +440,10 @@ class HomeController extends Controller
         $result = [];
         try {
             $supervisor = User::find($id);
-            if ($supervisor->identifiacion != $request->identifiacion) {
+            if ($supervisor->identificacion != $request->identificacion) {
                 if ($supervisor->email != $request->email) {
                     $validator = \Validator::make($request->all(), [
-                        'identifiacion' => 'required|unique:users|max:11',
+                        'identificacion' => 'required|unique:users|max:11',
                         'email' => 'required|unique:users',
                     ]);
                     if ($validator->fails()) {
@@ -440,7 +451,7 @@ class HomeController extends Controller
                     }
                 } else {
                     $validator = \Validator::make($request->all(), [
-                        'identifiacion' => 'required|unique:users|max:11',
+                        'identificacion' => 'required|unique:users|max:11',
                     ]);
 
                     if ($validator->fails()) {
@@ -551,4 +562,205 @@ class HomeController extends Controller
         $result['mensaje'] = 'Eliminado';
         return $result;
     }
+
+
+    /**
+     * Inicia la seccion de empresa
+     */
+
+
+
+    public function listaEmpresas()
+    {
+        return view('empresas.listaempresas');
+    }
+
+    public function viewCrearEmpresa()
+    {
+        return view('empresas.modalcrearempresa');
+    }
+
+    public function crearEmpresa(Request $request)
+    {
+        $result = [];
+        DB::beginTransaction();
+        try {
+            $validator = \Validator::make($request->all(), [
+                'nit' => 'required|unique:empresas|max:15',
+                'email' => 'required|unique:users',
+            ]);
+
+            if ($validator->fails()) {
+                return $validator->errors()->all();
+            }
+
+            $empresa = new Empresas($request->all());
+            $empresa->nit = trim($request->nit);
+            $empresa->save();
+            $user = new User($request->all());
+            $user->name = trim($request->nombres);
+            $user->email = trim($request->email);
+            $user->password = bcrypt(trim($request->identificacion));
+            $user->empresa_id = $empresa->id;
+            $user->save();
+            $user->assignRole(2);
+            DB::commit();
+            $result['estado'] = true;
+            $result['mensaje'] = 'Empresa creada satisfactoriamente.';
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $result['estado'] = false;
+            $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+
+
+    public function gridEmpresas()
+    {
+        $empresas = Empresas::all();
+        return DataTables::of($empresas)
+            ->addColumn('action', function ($empresas) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<a class="btn btn-xs btn-success" data-modal href="' . route('empresa.editar', $empresas->id) . '">Editar</a>';
+                if ($empresas->estado == 'A')
+                    $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $empresas->id . ')">Inactivar</button>';
+                else
+                    $acciones .= '<button class="btn btn-xs btn-success" onclick="cambiarestado(' . $empresas->id . ')">Activar</button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+    public function cambiarEstadoEmpresa(Request $request)
+    {
+        $result = [];
+        try {
+            $empresa = Empresas::find($request->id);
+            if ($empresa->estado == 'A') {
+                $empresa->estado = 'I';
+            } else {
+                $empresa->estado = 'A';
+            }
+            $empresa->save();
+            $result['estado'] = true;
+            $result['mensaje'] = 'Se cambiado el estado satisfactoriamente';
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'No fue posible cambiar el estado ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+    public function viewEditarEmpresa($id)
+    {
+        $empresa = Empresas::join('users', 'users.empresa_id', 'empresas.id')
+            ->join('role_user', 'users.id', 'role_user.user_id')
+            ->where('role_user.role_id', 2)
+            ->where('empresas.id', $id)
+            ->select('empresas.*','users.identificacion','users.email','users.nombres','users.apellidos')
+            ->first();
+//        return $empresa;
+        return view('empresas.modaleditarempresa', compact('empresa'));
+    }
+
+    public function editarEmpresa(Request $request, $id)
+    {
+        $result = [];
+        DB::beginTransaction();
+        try {
+            $empresa = Empresas::find($id);
+            $superAdminEmpresa = User::where("identificacion",$request->identificacion)->first();
+
+                    $validator = \Validator::make($request->all(), [
+                        'identificacion' => 'required|unique:users,identificacion,'.$superAdminEmpresa->id.'|max:11',
+                        'email' => 'required|unique:users,email,'.$superAdminEmpresa->id,
+                        'nit' => 'required|unique:empresas,nit,'.$id
+                    ]);
+                    if ($validator->fails()) {
+                        return $validator->errors()->all();
+                    }
+
+            $superAdminEmpresa->update($request->all());
+            $empresa->update($request->all());
+            DB::commit();
+            $result['estado'] = true;
+            $result['mensaje'] = 'Los datos de la empresa se actualizo satisfactoriamente.';
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            $result['estado'] = false;
+            $result['mensaje'] = 'No fue posible actualizar la empresa. ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
+    public function listaAdministradores()
+    {
+        return view('admins.listaadmins');
+    }
+
+    public function viewCrearAdministrador()
+    {
+        return view('admins.modalcrearadmin');
+    }
+
+    public function gridAdministradores()
+    {
+        $admins = User::join('role_user', 'users.id', 'role_user.user_id')
+            ->where('role_user.role_id', 3)
+            ->where('users.empresa_id', Auth::user()->empresa_id)
+            ->select('users.*')
+            ->get();
+        return DataTables::of($admins)
+            ->addColumn('action', function ($admins) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<a class="btn btn-xs btn-success" data-modal href="' . route('administrador.editar', $admins->id) . '">Editar</a>';
+                if ($admins->estado == 'A')
+                    $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $admins->id . ')">Inactivar</button>';
+                else
+                    $acciones .= '<button class="btn btn-xs btn-success" onclick="cambiarestado(' . $admins->id . ')">Activar</button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+
+    public function crearAdministrador(Request $request)
+    {
+        $result = [];
+        try {
+            $validator = \Validator::make($request->all(), [
+                'identificacion' => 'required|unique:asesores|max:11',
+                'email' => 'required|unique:users',
+            ]);
+
+            if ($validator->fails()) {
+                return $validator->errors()->all();
+            }
+
+            $supervisor = new User();
+            $supervisor->name = $request->nombres;
+            $supervisor->email = $request->email;
+            $supervisor->identificacion = trim($request->identificacion);
+            $supervisor->nombres = trim($request->nombres);
+            $supervisor->apellidos = trim($request->apellidos);
+            $supervisor->telefono = $request->telefono;
+            $supervisor->password = bcrypt(trim($request->identificacion));
+            $supervisor->empresa_id = Auth::user()->empresa_id;
+            $supervisor->save();
+            $supervisor->assignRole(3);
+            $result['estado'] = true;
+            $result['mensaje'] = 'Administrador agregado satisfactoriamente.';
+
+        } catch (\Exception $exception) {
+            $result['estado'] = false;
+            $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
+        }
+        return $result;
+    }
+
 }

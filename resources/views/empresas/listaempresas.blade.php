@@ -16,13 +16,13 @@
     <div class="row">
         <div class="col-xs-12">
             <div class="page-title-box">
-                <h4 class="page-title">Asesores</h4>
+                <h4 class="page-title">Empresas</h4>
                 <ol class="breadcrumb p-0 m-0">
                     <li>
                         <a href="#">GeoGextion</a>
                     </li>
                     <li class="active">
-                        <a href="#">Asesores</a>
+                        <a href="#">Empresas</a>
                     </li>
                 </ol>
                 <div class="clearfix"></div>
@@ -35,17 +35,16 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card-box table-responsive">
-                <h4 class="header-title m-t-0 m-b-20">Lista de asesores</h4>
+                <h4 class="header-title m-t-0 m-b-20">Lista de Empresas</h4>
 
 
-                <table id="table-asesores" class="table table-striped table-bordered" width="100%">
+                <table id="table-empresas" class="table table-striped table-bordered" width="100%">
                     <thead>
                     <tr>
-                        <th>Identificacion</th>
-                        <th>Nombres</th>
-                        <th>Apellidos</th>
-                        <th>Telfono</th>
-                        <th>Email</th>
+                        <th>NIT</th>
+                        <th>Nombre</th>
+                        <th>Telefono</th>
+                        <th>Direccion</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -84,22 +83,22 @@
         var table;
 
         $(function () {
-            table = $('#table-asesores').DataTable({
+            table = $('#table-empresas').DataTable({
                 processing: true,
                 serverSide: true,
                 "language": {
                     "url": "{!!route('datatable_es')!!}"
                 },
                 ajax: {
-                    url: "{!!route('gridasesores')!!}",
+                    url: "{!!route('gridaempresas')!!}",
                     "type": "get"
                 },
                 columns: [
-                    {data: 'identificacion', name: 'identificacion'},
-                    {data: 'nombres', name: 'nombres'},
-                    {data: 'apellidos', name: 'apellidos'},
+                    {data: 'nit', name: 'nit'},
+                    {data: 'abreviatura', name: 'abreviatura'},
                     {data: 'telefono', name: 'telefono'},
-                    {data: 'email', name: 'email'},
+                    {data: 'direccion', name: 'direccion'},
+
                     {
                         data: 'estado',
                         name: 'estado',
@@ -113,17 +112,17 @@
                     },
                     {data: 'action', name: 'action', orderable: false, searchable: false}
                 ],
-                @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
+                @role('superadmin')
                 dom: "Bfrtip",
                 buttons: [
                     {
-                        text: 'Agregar asesor',
+                        text: 'Crear una Empresa',
                         action: function ( e, dt, node, config ) {
-                            modalBsContent.load('{{route('asesor.crear')}}', function (response, status, xhr) {
+                            modalBsContent.load('{{route('empresa.crear')}}', function (response, status, xhr) {
                                 switch (status) {
                                     case "success":
                                         modalBs.modal({ backdrop: 'static', keyboard: false }, 'show');
-
+                                        modalBs.find(".modal-dialog").addClass("modal-lg");
                                         break;
 
                                     case "error":
@@ -144,7 +143,7 @@
                         className:'btn-sm btn-success'
                     }
                 ],
-                @endif
+                @endrole
                 order: [[1, 'asc']]
             });
 
@@ -164,7 +163,7 @@
                     buttonsStyling: false
                 }).then(function () {
                     $.ajax({
-                        url: '{{route('asesor.cambiarestado')}}',
+                        url: '{{route('empresa.cambiarestado')}}',
                         data: {id: id},
                         type: 'POST',
                         dataType: 'json',

@@ -2,6 +2,11 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\Administrador;
+use App\Http\Middleware\SuperAdmin;
+use App\Http\Middleware\SuperAdministradorEmpresa;
+use App\Http\Middleware\Supervisor;
+use App\Http\Middleware\ValidarEstado;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -35,6 +40,10 @@ class Kernel extends HttpKernel
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
+//            SuperAdmin::class,
+//            SuperAdministradorEmpresa::class,
+//            Administrador::class,
+//            Supervisor::class,
         ],
 
         'api' => [
@@ -59,5 +68,11 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'roleshinobi' => \Caffeinated\Shinobi\Middleware\UserHasRole::class,
         'permissionshinobi' => \Caffeinated\Shinobi\Middleware\UserHasPermission::class,
+
+        'superAdmin' =>SuperAdmin::class,
+        'superAdministradorEmpresa' =>SuperAdministradorEmpresa::class,
+        'administrador' =>Administrador::class,
+        'supervisor' =>Supervisor::class,
+        'validarEstado' =>ValidarEstado::class,
     ];
 }
