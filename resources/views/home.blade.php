@@ -22,7 +22,7 @@
                         <a href="#">GeoGextion</a>
                     </li>
                     <li class="active">
-                       GeoPosicion
+                        GeoPosicion
                     </li>
                 </ol>
                 <div class="clearfix"></div>
@@ -78,7 +78,7 @@
     <script>
         var ruta = false;
         $(function () {
-           initMap();
+            initMap();
 
             $('#datepicker').datepicker({
                 autoclose: true,
@@ -88,43 +88,64 @@
 
             $('#asesor').change(function () {
                 ruta = false;
-                if($(this).val()!=''){
+                if ($(this).val() != '') {
                     marketIndividual($(this).val())
-                }else{
+                } else {
                     ultimaposcicion();
                 }
             });
 
             $('#ruta').click(function () {
-                if($('#asesor').val() != '' && $('#datepicker').val() != ''){
+                if ($('#asesor').val() != '' && $('#datepicker').val() != '') {
                     ruta = true;
-                    $.get('{{route('rutaasesor')}}',{identificacion:$("#asesor").val(),fecha:$('#datepicker').val()},function (data) {
+                    $.get('{{route('rutaasesor')}}', {
+                        identificacion: $("#asesor").val(),
+                        fecha: $('#datepicker').val()
+                    }, function (data) {
                         map.removeMarkers();
                         map.removePolylines();
-                        var puntos= [];
+                        map.cleanRoute();
+                        var puntos = [];
                         var punto = [];
-                        for(i=0;i<data.length;i++){
-                            punto = [data[i].latitud,data[i].longitud];
+                        var punto2 = [];
+                        for (i = 0; i < data.length; i++) {
+                            punto = {
+                                location: {lat: parseFloat(data[i].latitud), lng: parseFloat(data[i].longitud)}, stopover: true
+                            }
                             puntos.push(punto);
                         }
-                        map.drawPolyline({
-                            path: puntos,
+
+                        map.setCenter(
+                            puntos[0].location.lat,
+                            puntos[0].location.lng
+                        );
+
+                        map.setZoom(16);
+
+                        map.drawRoute({
+                            origin: [puntos[0].location.lat, puntos[0].location.lng],
+                            destination: [puntos[puntos.length -1].location.lat, puntos[puntos.length-1].location.lng],
+                            waypoints: puntos,
+                            travelMode: 'walking',
                             strokeColor: '#131540',
                             strokeOpacity: 0.6,
                             strokeWeight: 6
                         });
-                        map.setZoom(16);
+
+
                     });
                 }
             });
-            setTimeout(ultimaposcicion,300);
+            setTimeout(ultimaposcicion, 300);
         });
 
         function ultimaposcicion() {
-            $.get('{{route('geoposicionfinal')}}',{},function(data){
+            $.get('{{route('geoposicionfinal')}}', {}, function (data) {
                 contrucionutimomarke(data)
             });
         }
+
+
 
         function initMap() {
             setTimeout(function () {
@@ -134,25 +155,25 @@
                     lng: -74.0817500,
                     zoom: 9
                 });
-            },200);
+            }, 200);
         };
 
         function marketIndividual(id) {
-            $.get('{{route('ubicarasesor')}}',{identificacion:id},function (data) {
+            $.get('{{route('ubicarasesor')}}', {identificacion: id}, function (data) {
                 map.removeMarkers();
                 map.removePolylines();
                 map.addMarker({
-                    lat: data.get_position[data.get_position.length -1].latitud,
-                    lng: data.get_position[data.get_position.length -1].longitud,
+                    lat: data.get_position[data.get_position.length - 1].latitud,
+                    lng: data.get_position[data.get_position.length - 1].longitud,
                     title: 'Marker with InfoWindow',
                     infoWindow: {
-                        content: '<p>'+data.nombres+' '+data.apellidos+'</p>'
+                        content: '<p>' + data.nombres + ' ' + data.apellidos + '</p>'
                     }
                 });
 
                 map.setCenter(
-                    data.get_position[data.get_position.length -1].latitud,
-                    data.get_position[data.get_position.length -1].longitud
+                    data.get_position[data.get_position.length - 1].latitud,
+                    data.get_position[data.get_position.length - 1].longitud
                 );
 
                 map.setZoom(16);
@@ -162,14 +183,14 @@
         function contrucionutimomarke(data) {
             map.removePolylines();
             map.removeMarkers();
-            for(i=0;i<data.length;i++){
-                if(data[i].get_position.length>0 ){
+            for (i = 0; i < data.length; i++) {
+                if (data[i].get_position.length > 0) {
                     map.addMarker({
-                        lat: data[i].get_position[data[i].get_position.length -1].latitud,
-                        lng: data[i].get_position[data[i].get_position.length -1].longitud,
+                        lat: data[i].get_position[data[i].get_position.length - 1].latitud,
+                        lng: data[i].get_position[data[i].get_position.length - 1].longitud,
                         title: 'Marker with InfoWindow',
                         infoWindow: {
-                            content: '<p>'+data[i].nombres+' '+data[i].apellidos+'</p>'
+                            content: '<p>' + data[i].nombres + ' ' + data[i].apellidos + '</p>'
                         }
                     });
                 }
@@ -177,11 +198,11 @@
         }
 
         var source = new EventSource("{{route('updatemarketgeneral')}}");
-        source.onmessage = function(event) {
-            if(!ruta){
-                if($('#asesor').val() == ''){
+        source.onmessage = function (event) {
+            if (!ruta) {
+                if ($('#asesor').val() == '') {
                     contrucionutimomarke(JSON.parse(event.data))
-                }else{
+                } else {
                     marketIndividual($('#asesor').val());
                 }
             }

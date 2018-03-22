@@ -50,6 +50,7 @@ class HomeController extends Controller
                 ->pluck('nombre', 'identificacion')
                 ->all();
         }
+//        dd($asesores);
         $asesores = array_add($asesores, '', 'Seleccione');
         arsort($asesores);
         return view('home', compact('asesores'));
