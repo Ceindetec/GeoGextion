@@ -506,16 +506,17 @@ class HomeController extends Controller
 
     public function gridNoAsesores($id)
     {
+
         $userAsesor = UserAsesor::where('user_id', $id)->get(['asesore_id']);
         $arrayAsesor = [];
         if (count($userAsesor) == 0) {
-            $asesores = Asesores::all();
+            $asesores = Asesores::where('empresa_id',Auth::user()->empresa_id)->get();
         } else {
             for ($i = 0; $i < count($userAsesor); $i++) {
                 $arrayAsesor[$i] = $userAsesor[$i]->asesore_id;
             }
 
-            $asesores = Asesores::whereNotIn('id', $arrayAsesor)->get();
+            $asesores = Asesores::where('empresa_id',Auth::user()->empresa_id)->whereNotIn('id', $arrayAsesor)->get();
         }
 
         return DataTables::of($asesores)
@@ -532,8 +533,9 @@ class HomeController extends Controller
     {
         $userAsesor = UserAsesor::where('user_id', $id)->get();
 
-        $asesores = Asesores::leftJoin('user_asesors', 'asesores.id', 'user_asesors.asesore_id')->where('user_asesors.user_id', $id)->get(['asesores.*']);
+        $asesores = Asesores::leftJoin('user_asesors', 'asesores.id', 'user_asesors.asesore_id')->where('user_asesors.user_id', $id)->where('empresa_id',Auth::user()->empresa_id)->get(['asesores.*']);
 
+        //dd($asesores);
 
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
