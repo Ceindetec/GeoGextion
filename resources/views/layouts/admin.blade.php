@@ -88,7 +88,9 @@
             <!-- Image logo -->
             <a href="{{route('home')}}" class="logo">
                         <span>
+
                             <img src="{{url('images/logoblanco.png')}}" alt="" height="50">
+
                         </span>
                 <i>
                     <img src="{{url('images/logosmblanco.png')}}" alt="" height="38">
@@ -109,6 +111,7 @@
                     </li>
 
                 </ul>
+
 
                 <!-- Right(Notification) -->
                 <ul class="nav navbar-nav navbar-right">
@@ -132,6 +135,10 @@
                     </li>
 
                 </ul> <!-- end navbar-right -->
+
+                <ul class="nav navbar-nav navbar-right">
+                    <h4 style="margin-top: 23px; color: #ffffff;"> {{Auth::user()->empresa->razon}} </h4>
+                </ul>
 
             </div><!-- end container -->
         </div><!-- end navbar -->

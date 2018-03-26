@@ -7,6 +7,7 @@
     <link href="{{asset('plugins/clockpicker/css/bootstrap-clockpicker.min.css')}}" rel="stylesheet">
     <link href="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
 
+
     <link href="{{asset('plugins/datatables/jquery.dataTables.min.css')}}" rel="stylesheet" type="text/css"/>
     <link href="{{asset('plugins/datatables/buttons.bootstrap.min.css')}}" rel="stylesheet" type="text/css"/>
     <link href="{{asset('plugins/datatables/fixedHeader.bootstrap.min.css')}}" rel="stylesheet" type="text/css"/>
@@ -49,7 +50,7 @@
                     <div class="form-group">
                         <label>Fecha:</label>
                         <div class="input-group">
-                            <input type="text" name="fecha" class="form-control" placeholder="yyyy-mm-dd" id="datepicker">
+                            <input type="text" name="fecha" class="form-control" id="datepicker">
                             <span class="input-group-addon bg-custom b-0"><i
                                         class="mdi mdi-calendar text-white"></i></span>
                         </div><!-- input-group -->
@@ -94,8 +95,8 @@
     <script src="{{asset('plugins/timepicker/bootstrap-timepicker.js')}}"></script>
     <script src="{{asset('plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js')}}"></script>
     <script src="{{asset('plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js')}}"></script>
-    <script src="{{asset('plugins/clockpicker/js/bootstrap-clockpicker.min.js')}}"></script>
     <script src="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
+    <script src="{{asset('plugins/clockpicker/js/bootstrap-clockpicker.min.js')}}"></script>
 
     <script src="{{asset('plugins/datatables/jquery.dataTables.min.js')}}"></script>
     <script src="{{asset('plugins/datatables/dataTables.bootstrap.js')}}"></script>
@@ -117,19 +118,42 @@
 
     <script>
         $(function () {
-            $('.timepicker').timepicker({
+            var end = moment();
+            var hora1 = moment().subtract(30, 'minute');
+
+            console.log(hora1);
+
+            $('#hora1').timepicker({
                 showMeridian: false,
+                defaultTime: hora1.format("h:mm:ss")
             });
 
-            $('#datepicker').datepicker({
-                autoclose: true,
-                todayHighlight: true,
-                format: "yyyy-mm-dd",
-                endDate: moment().format('YYYY-MM-DD')
+            $('#hora2').timepicker({
+                showMeridian: false,
+                defaultTime: end.format("h:mm:ss")
             });
+
+            // $('#datepicker').datepicker({
+            //     autoclose: true,
+            //     todayHighlight: true,
+            //     format: "yyyy-mm-dd",
+            //     endDate: moment().format('YYYY-MM-DD')
+            // });
+
+
+
+
+            $('#datepicker').daterangepicker({
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                maxDate: end
+            });
+
 
             $('#consultar').submit(function (e) {
                 e.preventDefault();
+
                 if ($('#datepicker').val() != '') {
                     var hora1 = $('#hora1').val();
                     var corrige = hora1.split(":");
@@ -144,7 +168,7 @@
                     console.log(hora1, hora2);
                     if (hora1 < hora2) {
                         var form = $(this);
-                        $("#resultado").load("{{route('resultadoconsulta')}}",form.serialize());
+                        $("#resultado").load("{{route('resultadoconsulta')}}",form.serialize()+"&hora1="+hora1+"&hora2="+hora2);
                     }
                 }
             })

@@ -26,6 +26,9 @@ Route::post('password/reset', 'Auth\ResetPasswordController@reset');
 Route::post('logout', 'Auth\LoginController@logout')->name('logout');
 
 
+Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
+Route::post('perfil/usuario', 'PerfilUsuarioController@actulizarPerfil');
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -54,10 +57,6 @@ Route::group(['middleware' => ['supervisor','validarEstado']], function () {
     Route::get('modalpunto', 'HomeController@modalPunto')->name('modalpunto');
     Route::get('exportarpdf', 'HomeController@exportarPdf')->name('exportarpdf');
     Route::get('exportarexcel', 'HomeController@exportarExcel')->name('exportarexcel');
-
-
-    Route::get('perfil/usuario', 'PerfilUsuarioController@perfilUsuario')->name('perfil');
-    Route::post('perfil/usuario', 'PerfilUsuarioController@actulizarPerfil');
 
 });
 
@@ -117,3 +116,5 @@ Route::get('mapas', function(){
     dd($direccion);
 
 });
+
+Route::get('insert', 'HomeController@insertlocoMedallo');
