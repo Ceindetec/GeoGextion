@@ -137,7 +137,9 @@
                 </ul> <!-- end navbar-right -->
 
                 <ul class="nav navbar-nav navbar-right">
+                    @if(Auth::user()->empresa_id != null)
                     <h4 style="margin-top: 23px; color: #ffffff;"> {{Auth::user()->empresa->razon}} </h4>
+                    @endif
                 </ul>
 
             </div><!-- end container -->
