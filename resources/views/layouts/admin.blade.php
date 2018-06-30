@@ -176,7 +176,7 @@
 
 
         <footer class="footer text-right">
-            2017 © GeoGextion. - Ceindetec.org.co
+            {{Carbon\Carbon::now()->format('Y')}} © GeoGextion. - Ceindetec.org.co
         </footer>
 
     </div>

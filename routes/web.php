@@ -39,13 +39,16 @@ Route::get('datatable_es', 'IndiomasController@espanol')->name('datatable_es');
 
 Route::group(['middleware' => ['supervisor','validarEstado']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
-    Route::get('/asesores', 'HomeController@listaAsesores')->name('listaacesores');
-    Route::get('/gridasesores', 'HomeController@gridAsesores')->name('gridasesores');
-    Route::get('/asesor/crear', 'HomeController@viewCrearAsesor')->name('asesor.crear');
-    Route::post('/asesor/crear', 'HomeController@crearAsesor')->name('asesor.crearp');
-    Route::get('/asesor/editar/{id}', 'HomeController@viewEditarAsesor')->name('asesor.editar');
-    Route::post('/asesor/editar/{id}', 'HomeController@editarAsesor')->name('asesor.editarp');
-    Route::post('/asesor/cambiarestado', 'HomeController@cambiarEstadoAsesor')->name('asesor.cambiarestado');
+
+    Route::get('/asesores', 'AsesorController@listaAsesores')->name('listaacesores');
+    Route::get('/gridasesores', 'AsesorController@gridAsesores')->name('gridasesores');
+    Route::get('/asesor/crear', 'AsesorController@viewCrearAsesor')->name('asesor.crear');
+    Route::post('/asesor/crear', 'AsesorController@crearAsesor')->name('asesor.crearp');
+    Route::get('/asesor/editar/{id}', 'AsesorController@viewEditarAsesor')->name('asesor.editar');
+    Route::post('/asesor/editar/{id}', 'AsesorController@editarAsesor')->name('asesor.editarp');
+    Route::post('/asesor/cambiarestado', 'AsesorController@cambiarEstadoAsesor')->name('asesor.cambiarestado');
+
+
     Route::get('geoposicionfinal', 'HomeController@geoPosicionfinal')->name('geoposicionfinal');
     Route::get('ubicarasesor', 'HomeController@ubicarasesor')->name('ubicarasesor');
     Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
@@ -63,42 +66,44 @@ Route::group(['middleware' => ['supervisor','validarEstado']], function () {
 
 /*inicia superAdminstrador*/
 Route::group(['middleware' => ['superAdmin','validarEstado']], function () {
-    Route::get('listaempresas', 'HomeController@listaEmpresas')->name('listaEmpresas');
-    Route::get('gridaempresas', 'HomeController@gridEmpresas')->name('gridaempresas');
-    Route::get('empresa/crear', 'HomeController@viewCrearEmpresa')->name('empresa.crear');
-    Route::post('empresa/crear', 'HomeController@crearEmpresa');
-    Route::post('empresa/cambiarestado', 'HomeController@cambiarEstadoEmpresa')->name('empresa.cambiarestado');
-    Route::get('empresa/editar/{id}', 'HomeController@viewEditarEmpresa')->name('empresa.editar');
-    Route::post('empresa/editar/{id}', 'HomeController@editarEmpresa');
+
+    Route::get('listaempresas', 'EmpresaController@listaEmpresas')->name('listaEmpresas');
+    Route::get('gridaempresas', 'EmpresaController@gridEmpresas')->name('gridaempresas');
+    Route::get('empresa/crear', 'EmpresaController@viewCrearEmpresa')->name('empresa.crear');
+    Route::post('empresa/crear', 'EmpresaController@crearEmpresa');
+    Route::post('empresa/cambiarestado', 'EmpresaController@cambiarEstadoEmpresa')->name('empresa.cambiarestado');
+    Route::get('empresa/editar/{id}', 'EmpresaController@viewEditarEmpresa')->name('empresa.editar');
+    Route::post('empresa/editar/{id}', 'EmpresaController@editarEmpresa');
+
 });
 
 
 
 /*inicia Adminstrador*/
 Route::group(['middleware' => ['superAdministradorEmpresa','validarEstado']], function () {
-    Route::get('listaadministrador', 'HomeController@listaAdministradores')->name('listaAdministradores');
-    Route::get('gridaadministrador', 'HomeController@gridAdministradores')->name('gridaadministradores');
-    Route::get('administrador/crear', 'HomeController@viewCrearAdministrador')->name('administrador.crear');
-    Route::post('administrador/crear', 'HomeController@crearAdministrador');
-    Route::post('administrador/cambiarestado', 'HomeController@cambiarEstadoSupervisor')->name('administrador.cambiarestado');
-    Route::get('administrador/editar/{id}', 'HomeController@viewEditarSupervisor')->name('administrador.editar');
-    Route::post('administrador/editar/{id}', 'HomeController@editarSupervisor');
+    Route::get('listaadministrador', 'AdministradorController@listaAdministradores')->name('listaAdministradores');
+    Route::get('gridaadministrador', 'AdministradorController@gridAdministradores')->name('gridaadministradores');
+    Route::get('administrador/crear', 'AdministradorController@viewCrearAdministrador')->name('administrador.crear');
+    Route::post('administrador/crear', 'AdministradorController@crearAdministrador');
+    Route::post('administrador/cambiarestado', 'SupervisorController@cambiarEstadoSupervisor')->name('administrador.cambiarestado');
+    Route::get('administrador/editar/{id}', 'SupervisorController@viewEditarSupervisor')->name('administrador.editar');
+    Route::post('administrador/editar/{id}', 'SupervisorController@editarSupervisor');
 });
 
 /*inicia supervisores*/
 Route::group(['middleware' => ['administrador','validarEstado']], function () {
-    Route::get('listasupervisores', 'HomeController@listaSupervisores')->name('listasupervisores');
-    Route::get('gridasupervisores', 'HomeController@gridSupervisores')->name('gridasupervisores');
-    Route::get('supervisor/crear', 'HomeController@viewCrearSupervisor')->name('supervisor.crear');
-    Route::post('supervisor/crear', 'HomeController@crearSupervisor');
-    Route::get('supervisor/editar/{id}', 'HomeController@viewEditarSupervisor')->name('supervisor.editar');
-    Route::post('supervisor/editar/{id}', 'HomeController@editarSupervisor');
-    Route::post('supervisor/cambiarestado', 'HomeController@cambiarEstadoSupervisor')->name('supervisor.cambiarestado');
-    Route::get('supervisor/asociar/{id}', 'HomeController@asociarAsesorSupervisor')->name('supervisor.asociar');
-    Route::get('supervisor/gridnoasesores/{id}', 'HomeController@gridNoAsesores')->name('gridnoasesores');
-    Route::get('supervisor/gridsiasesores/{id}', 'HomeController@gridSiAsesores')->name('gridsiasesores');
-    Route::post('supervisor/agregaasesor', 'HomeController@agregaAsesor')->name('supervisor.agregaasesor');
-    Route::post('supervisor/quitarasesor', 'HomeController@quitarAsesor')->name('supervisor.quitarasesor');
+    Route::get('listasupervisores', 'SupervisorController@listaSupervisores')->name('listasupervisores');
+    Route::get('gridasupervisores', 'SupervisorController@gridSupervisores')->name('gridasupervisores');
+    Route::get('supervisor/crear', 'SupervisorController@viewCrearSupervisor')->name('supervisor.crear');
+    Route::post('supervisor/crear', 'SupervisorController@crearSupervisor');
+    Route::get('supervisor/editar/{id}', 'SupervisorController@viewEditarSupervisor')->name('supervisor.editar');
+    Route::post('supervisor/editar/{id}', 'SupervisorController@editarSupervisor');
+    Route::post('supervisor/cambiarestado', 'SupervisorController@cambiarEstadoSupervisor')->name('supervisor.cambiarestado');
+    Route::get('supervisor/asociar/{id}', 'SupervisorController@asociarAsesorSupervisor')->name('supervisor.asociar');
+    Route::get('supervisor/gridnoasesores/{id}', 'SupervisorController@gridNoAsesores')->name('gridnoasesores');
+    Route::get('supervisor/gridsiasesores/{id}', 'SupervisorController@gridSiAsesores')->name('gridsiasesores');
+    Route::post('supervisor/agregaasesor', 'SupervisorController@agregaAsesor')->name('supervisor.agregaasesor');
+    Route::post('supervisor/quitarasesor', 'SupervisorController@quitarAsesor')->name('supervisor.quitarasesor');
 });
 
 Route::get('mapas', function(){
