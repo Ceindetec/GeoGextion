@@ -153,7 +153,6 @@
 
         @include('layouts.menulateral');
 
-
     </div>
     <!-- Left Sidebar End -->
 

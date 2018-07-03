@@ -37,7 +37,13 @@ class AdminUser extends Seeder
                 "name" => "Supervisor",
                 "slug" => "super",
                 "Description" => "Superviza a los asesores"
-            ]]);
+            ],
+            [
+                "name" => "Supervisor Trasporte",
+                "slug" => "supertrasporte",
+                "Description" => "Superviza a los trasportadores"
+            ]
+        ]);
 
         DB::table('role_user')->insert([
             "role_id" => $roleId,
