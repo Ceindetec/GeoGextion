@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
 class AdministradorController extends Controller
@@ -85,5 +87,78 @@ class AdministradorController extends Controller
             $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
         }
         return $result;
+    }
+
+    public function exportar()
+    {
+        $administradores = User::with('rol')->whereHas('rol', function ($query){
+            $query->where('slug','admin');
+        })->where('empresa_id',Auth::user()->empresa_id)->get();
+
+        \Excel::create('Administradores', function ($excel) use ($administradores) {
+
+            $excel->sheet('Administradores', function ($sheet) use ($administradores) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                    'E' => 30,
+                    'F' => 30
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE ADMINISTRADORES'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+
+                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+
+                $fila = 7;
+                if (sizeof($administradores) > 0) {
+                    $sheet->row(6, array('Identificacion', 'Nombres', 'Apellidos','Email','Telefono','Estado'));
+                    $sheet->row(6, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+
+
+                    foreach ($administradores as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->identificacion,
+                                $miresul->nombres,
+                                $miresul->apellidos,
+                                $miresul->email,
+                                $miresul->telefono,
+                                $miresul->estado
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xlsx');
     }
 }

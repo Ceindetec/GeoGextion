@@ -89,6 +89,7 @@ Route::group(['middleware' => ['superAdministradorEmpresa','validarEstado']], fu
     Route::post('administrador/cambiarestado', 'SupervisorController@cambiarEstadoSupervisor')->name('administrador.cambiarestado');
     Route::get('administrador/editar/{id}', 'SupervisorController@viewEditarSupervisor')->name('administrador.editar');
     Route::post('administrador/editar/{id}', 'SupervisorController@editarSupervisor');
+    Route::get('exportaradministradores','AdministradorController@exportar')->name('exportaradmin');
 });
 
 /*inicia supervisores*/

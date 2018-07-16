@@ -35,7 +35,15 @@
     <div class="row">
         <div class="col-sm-12">
             <div class="card-box table-responsive">
-                <h4 class="header-title m-t-0 m-b-20">Lista de Administradores</h4>
+                <h4 class="header-title m-t-0 m-b-20">
+                    Lista de Administradores
+                    <span class="pull-right">
+                        <a href="{{route('exportaradmin')}}" class="btn btn-success">
+                            <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                    </span>
+                </h4>
+                <br>
 
 
                 <table id="table-administradores" class="table table-striped table-bordered" width="100%">
