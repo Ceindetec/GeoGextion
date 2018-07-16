@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Empresas;
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Excel;
+use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
 class EmpresaController extends Controller
@@ -148,6 +151,86 @@ class EmpresaController extends Controller
             $result['mensaje'] = 'No fue posible actualizar la empresa. ' . $exception->getMessage();
         }
         return $result;
+    }
+
+
+    public function exportar()
+    {
+        $empresas = Empresas::with(['user'=>function($query){
+            $query->with(['rol'=>function($query){
+                $query->where('slug','sadminempresa');
+            }])->whereHas('rol',function($query){
+                $query->where('slug','sadminempresa');
+            });
+        }])->get();
+
+        //dd($empresas);
+
+        \Excel::create('Empresas', function ($excel) use ($empresas) {
+
+            $excel->sheet('Empresas', function ($sheet) use ($empresas) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                    'E' => 30,
+                    'F' => 30
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE EMPRESAS'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+
+                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+
+                $fila = 7;
+                if (sizeof($empresas) > 0) {
+                    $sheet->row(6, array('Nit', 'Razon social', 'Representante','Telefono','Direccion','Estado'));
+                    $sheet->row(6, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+
+
+                    foreach ($empresas as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->nit,
+                                $miresul->razon,
+                                $miresul->user[0]->nombres.' '.$miresul->user[0]->apellidos,
+                                $miresul->telefono,
+                                $miresul->direccion,
+                                $miresul->estado
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xlsx');
     }
 
 }

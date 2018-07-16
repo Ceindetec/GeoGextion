@@ -10,4 +10,8 @@ class Empresas extends Model
 
 
 
+    public function User(){
+        return $this->hasMany(User::class,'empresa_id','id');
+    }
+
 }

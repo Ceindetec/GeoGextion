@@ -23,7 +23,8 @@ class RoleSeeder extends Seeder
                 "slug" => "superadmin",
                 "Description" => "Control total sistema"
             ]);
-            DB::table('roles')->insert([
+        DB::table('roles')->insert(
+            [
                 "name" => "SuperAdministradorEmpresa",
                 "slug" => "sadminempresa",
                 "Description" => "Control total de la empresa"
@@ -37,6 +38,16 @@ class RoleSeeder extends Seeder
                 "name" => "Supervisor",
                 "slug" => "super",
                 "Description" => "Superviza a los asesores"
+            ],
+            [
+                "name" => "Supervisor Trasporte",
+                "slug" => "supert",
+                "Description" => "Superviza a los trasportadores"
+            ],
+            [
+                "name" => "Trasportador",
+                "slug" => "trasporte",
+                "Description" => "Se encarga de los trasportes"
             ]);
 
         DB::table('role_user')->insert([

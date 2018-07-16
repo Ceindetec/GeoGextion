@@ -74,6 +74,7 @@ Route::group(['middleware' => ['superAdmin','validarEstado']], function () {
     Route::post('empresa/cambiarestado', 'EmpresaController@cambiarEstadoEmpresa')->name('empresa.cambiarestado');
     Route::get('empresa/editar/{id}', 'EmpresaController@viewEditarEmpresa')->name('empresa.editar');
     Route::post('empresa/editar/{id}', 'EmpresaController@editarEmpresa');
+    Route::get('exportarempresas','EmpresaController@exportar')->name('exportarempresas');
 
 });
 

@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Caffeinated\Shinobi\Models\Role;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Caffeinated\Shinobi\Traits\ShinobiTrait;
@@ -32,6 +33,11 @@ class User extends Authenticatable
     public function empresa()
     {
         return $this->belongsTo('App\Empresas');
+    }
+
+
+    public function rol(){
+        return $this->belongsToMany(Role::class);
     }
 
 
