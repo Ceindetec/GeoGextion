@@ -106,6 +106,7 @@ Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::get('supervisor/gridsiasesores/{id}', 'SupervisorController@gridSiAsesores')->name('gridsiasesores');
     Route::post('supervisor/agregaasesor', 'SupervisorController@agregaAsesor')->name('supervisor.agregaasesor');
     Route::post('supervisor/quitarasesor', 'SupervisorController@quitarAsesor')->name('supervisor.quitarasesor');
+    Route::get('exportarsupervisoresase','SupervisorController@exportar')->name('exportsuperase');
 });
 
 Route::get('mapas', function(){

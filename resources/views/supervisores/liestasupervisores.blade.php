@@ -35,9 +35,15 @@
 <div class="row">
     <div class="col-sm-12">
         <div class="card-box table-responsive">
-            <h4 class="header-title m-t-0 m-b-20">Lista de Supervisores</h4>
+            <h4 class="header-title m-t-0 m-b-20">Lista de Supervisores
+                <span class="pull-right">
+                        <a href="{{route('exportsuperase')}}" class="btn btn-success">
+                            <i class="fa fa-file-excel-o" aria-hidden="true"></i>
+                        </a>
+                    </span>
+            </h4>
 
-
+            <br>
             <table id="table-asesores" class="table table-striped table-bordered" width="100%">
                 <thead>
                 <tr>
