@@ -45,13 +45,16 @@ class HomeController extends Controller
                 ->pluck('nombre','identificacion');
 
         } else {
-            $asesores = Asesor::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+            $id =Auth::User()->id;
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
+                $query->where('roles.slug','asesor');
+            })
+                ->whereHas('supervisor', function ($query) use ($id){
+                    $query->where('supervisor_id','=',$id);
+                })
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('users.estado', 'A')
-                ->where('user_asesors.user_id', Auth::User()->id)
-                ->where('users.empresa_id', Auth::user()->empresa_id)
-                ->pluck('nombre', 'identificacion')
-                ->all();
+                ->where('empresa_id',Auth::user()->empresa_id)
+                ->pluck('nombre','identificacion');
         }
 
         return view('home', compact('asesores'));
@@ -121,17 +124,23 @@ class HomeController extends Controller
     public function consulta()
     {
         if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')){
-            $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                $query->where('slug', 'asesor');
+            })->where('empresa_id', auth()->user()->empresa_id)
                 ->where('estado', 'A')
-                ->where('asesores.empresa_id', Auth::user()->empresa_id)
-                ->pluck('nombre', 'identificacion');
-        } else {
-            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('asesores.estado', 'A')
-                ->where('user_asesors.user_id', Auth::User()->id)
-                ->where('asesores.empresa_id', Auth::user()->empresa_id)
-                ->pluck('nombre', 'identificacion');
+                ->pluck('nombre','identificacion');
+        } else {
+            $id =Auth::User()->id;
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
+                $query->where('roles.slug','asesor');
+            })
+                ->whereHas('supervisor', function ($query) use ($id){
+                    $query->where('supervisor_id','=',$id);
+                })
+                ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('empresa_id',Auth::user()->empresa_id)
+                ->pluck('nombre','identificacion');
         }
         return view('consulta.consulta', compact('asesores'));
     }

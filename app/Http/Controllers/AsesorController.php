@@ -39,14 +39,17 @@ class AsesorController extends Controller
                 $query->where('slug', 'asesor');
             })
                 ->where('empresa_id', auth()->user()->empresa_id)->get();
+
         } else {
-            /*$asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
-                ->select('asesores.*')
-                ->where('asesores.estado', 'A')
-                ->where('user_asesors.user_id', Auth::User()->id)
-                ->where('asesores.empresa_id', Auth::user()->empresa_id)
-                ->get();*/
-            $asesores = User::with('supervisor');
+            $id = Auth::User()->id;
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                $query->where('roles.slug', 'asesor');
+            })
+                ->whereHas('supervisor', function ($query) use ($id) {
+                    $query->where('supervisor_id', '=', $id);
+                })
+                ->where('empresa_id', Auth::user()->empresa_id)->get();
+
         }
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
@@ -168,9 +171,9 @@ class AsesorController extends Controller
 
     public function exportar()
     {
-        $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
-            $query->where('slug','asesor');
-        })->where('empresa_id',Auth::user()->empresa_id)->get();
+        $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+            $query->where('slug', 'asesor');
+        })->where('empresa_id', Auth::user()->empresa_id)->get();
 
         \Excel::create('Asesores', function ($excel) use ($asesores) {
 
@@ -210,11 +213,11 @@ class AsesorController extends Controller
                 $sheet->setBorder('A1:A4', 'thin');
 
 
-                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+                $sheet->row(4, array('', '', '', '', 'Fecha GENERACION:', $hoy));
 
                 $fila = 7;
                 if (sizeof($asesores) > 0) {
-                    $sheet->row(6, array('Identificacion', 'Nombres', 'Apellidos','Email','Telefono','Estado'));
+                    $sheet->row(6, array('Identificacion', 'Nombres', 'Apellidos', 'Email', 'Telefono', 'Estado'));
                     $sheet->row(6, function ($row) {
                         $row->setBackground('#f2f2f2');
                     });

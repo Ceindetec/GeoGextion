@@ -110,6 +110,19 @@ Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::get('exportarsupervisoresase','SupervisorController@exportar')->name('exportsuperase');
 });
 
+
+/*supervisor transporte */
+
+Route::group(['middleware' => ['administrador','validarEstado']], function () {
+    Route::get('listasupervisorestransporte', 'SupervisorTransporteController@listaSupervisoresTransporte')->name('listasupervisorestransporte');
+    Route::get('gridasupervisorestrasporte', 'SupervisorTransporteController@gridSupervisoresTrasporte')->name('gridasupervisorestrasporte');
+    Route::get('supervisortransportecrear', 'SupervisorTransporteController@viewCrearSupervisor')->name('supervisortransporte.crear');
+    Route::post('supervisortransportecrear', 'SupervisorTransporteController@crearSupervisor');
+    Route::get('supervisortransporteeditar/{id}', 'SupervisorTransporteController@viewEditarSupervisorTransporte')->name('supervisortransporte.editar');
+    Route::post('supervisortransporteeditar/{id}', 'SupervisorTransporteController@editarSupervisorTransporte');
+});
+
+
 Route::get('mapas', function(){
     $config = array();
     $config['center'] = 'auto';

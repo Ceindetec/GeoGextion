@@ -1,8 +1,8 @@
 <div id="modaleditarasesores">
-    {{Form::model($supervisor,['route'=>['supervisor.editar',$supervisor->id], 'class'=>'form-horizontal', 'id'=>'editarasesor'])}}
+    {{Form::model($supervisor,['route'=>['supervisortransporte.editar',$supervisor->id], 'class'=>'form-horizontal', 'id'=>'editarasesor'])}}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h4 class="modal-title">Editar Supervisor</h4>
+        <h4 class="modal-title">Editar Supervisor Transporte</h4>
     </div>
     <div class="modal-body">
         <div class="form-group">

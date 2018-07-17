@@ -34,14 +34,14 @@
                 </li>
 
                 <li>
-                    <a href="javascript: void(0);" aria-expanded="true"><i class="fi-target"></i>
+                    <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-car"></i>
                         <span> Transporte </span>
                         <span class="menu-arrow"></span></a>
                     <ul class="nav-second-level nav" aria-expanded="true">
 
                         @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
 
-                            <li><a href="{{route('listasupervisores')}}"></i><span> Supervisores </span></a>
+                            <li><a href="{{route('listasupervisorestransporte')}}"></i><span> Supervisores </span></a>
                             </li>
                         @endif
                         <li><a href="{{route('listaacesores')}}"></i><span> Asesores </span></a></li>

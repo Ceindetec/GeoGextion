@@ -29,7 +29,7 @@
                         <a href="#">GeoGextion</a>
                     </li>
                     <li class="active">
-                        Perfil de Usuario
+                        Consulta
                     </li>
                 </ol>
                 <div class="clearfix"></div>
@@ -45,7 +45,7 @@
                     <h4 class="header-title m-t-0 m-b-20">Filtros</h4>
                     <div class="form-group">
                         <label>Asesor:</label>
-                        {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor'])}}
+                        {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor','placeholder'=>'seleccione asesor'])}}
                     </div>
                     <div class="form-group">
                         <label>Fecha:</label>
