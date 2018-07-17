@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Asesor;
 use App\Asesores;
+use App\User;
 use Caffeinated\Shinobi\Facades\Shinobi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -29,15 +31,20 @@ class AsesorController extends Controller
 
     public function gridAsesores()
     {
-        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')) {
-            $asesores = Asesores::where('asesores.empresa_id', Auth::user()->empresa_id);
+        if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
+
+            $asesores = User::whereHas('rol', function ($query) {
+                $query->where('slug', 'asesor');
+            })
+                ->where('empresa_id', auth()->user()->empresa_id)->get();
         } else {
-            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+            /*$asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->select('asesores.*')
                 ->where('asesores.estado', 'A')
                 ->where('user_asesors.user_id', Auth::User()->id)
                 ->where('asesores.empresa_id', Auth::user()->empresa_id)
-                ->get();
+                ->get();*/
+            $asesores = User::with('supervisor');
         }
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
@@ -63,17 +70,20 @@ class AsesorController extends Controller
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
-                'identificacion' => 'required|unique:asesores|max:11',
-                'email' => 'unique:asesores',
+                'identificacion' => 'required|unique:users|max:11',
+                'email' => 'unique:users',
             ]);
 
             if ($validator->fails()) {
                 return $validator->errors()->all();
             }
-
-            $asesor = new Asesores($request->all());
+            $asesor = new User($request->all());
+            $asesor->name = $request->nombres;
+            $asesor->password = bcrypt($request->identificacion);
             $asesor->empresa_id = Auth::user()->empresa_id;
             $asesor->save();
+            $user = User::find($asesor->id);
+            $user->assignRole(Asesor::ASESOR);
             $result['estado'] = true;
             $result['mensaje'] = 'Asesor agregado satisfactoriamente.';
         } catch (\Exception $exception) {
@@ -86,7 +96,7 @@ class AsesorController extends Controller
 
     public function viewEditarAsesor($id)
     {
-        $asesor = Asesores::find($id);
+        $asesor = User::find($id);
         return view('asesores.modaleditarasesor', compact('asesor'));
     }
 
@@ -94,12 +104,12 @@ class AsesorController extends Controller
     {
         $result = [];
         try {
-            $asesor = Asesores::find($id);
+            $asesor = User::find($id);
             if ($asesor->identificacion != $request->identificacion) {
                 if ($asesor->email != $request->email) {
                     $validator = \Validator::make($request->all(), [
-                        'identificacion' => 'required|unique:asesores|max:11',
-                        'email' => 'unique:asesores',
+                        'identificacion' => 'required|unique:users|max:11',
+                        'email' => 'unique:users',
                     ]);
 
                     if ($validator->fails()) {
@@ -107,7 +117,7 @@ class AsesorController extends Controller
                     }
                 } else {
                     $validator = \Validator::make($request->all(), [
-                        'identificacion' => 'required|unique:asesores|max:11',
+                        'identificacion' => 'required|unique:users|max:11',
                     ]);
 
                     if ($validator->fails()) {
@@ -116,7 +126,7 @@ class AsesorController extends Controller
                 }
             } else if ($asesor->email != $request->email) {
                 $validator = \Validator::make($request->all(), [
-                    'email' => 'unique:asesores',
+                    'email' => 'unique:users',
                 ]);
 
                 if ($validator->fails()) {
@@ -137,7 +147,7 @@ class AsesorController extends Controller
     {
         $result = [];
         try {
-            $asesor = Asesores::find($request->id);
+            $asesor = User::find($request->id);
             if ($asesor->estado == 'A') {
                 $asesor->estado = 'I';
             } else {

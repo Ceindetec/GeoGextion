@@ -5,7 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 
-class Asesores extends Model
+class Asesores extends User
 {
     //
     protected $fillable = ['identificacion','nombres','apellidos','email','telefono','empresa_id'];
@@ -20,5 +20,10 @@ class Asesores extends Model
         return $this->hasMany('App\GeoPosicion','identificacion','identificacion')
             ->whereDate('fecha',$fecha)
             ->orderBy('fecha','asc');
+    }
+
+    public function supervisor()
+    {
+        $this->belongsToMany(Supervisor::class);
     }
 }

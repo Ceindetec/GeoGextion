@@ -38,7 +38,7 @@
                 <h4 class="header-title m-t-0 m-b-20">Filtros</h4>
                 <div class="form-group col-md-4">
                     <label>Asesor:</label>
-                    {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor'])}}
+                    {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor','placeholder'=>'Seleccione un asesor'])}}
                 </div>
                 <div class="form-group col-md-4">
                     <label>Fecha:</label>

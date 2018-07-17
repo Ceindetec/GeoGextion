@@ -11,6 +11,17 @@ class User extends Authenticatable
 {
     use Notifiable, ShinobiTrait;
 
+
+    const SUPERADMIN = 1;
+    const SUPERADMINEMPRESA = 2;
+    const ADMINISTRADOR = 3;
+    const SUPERVISORA = 4;
+    const ASESOR = 5;
+    const SUPERVISRORT = 6;
+    const TRASPORTADOR = 7;
+
+
+    protected $table= 'users';
     /**
      * The attributes that are mass assignable.
      *
@@ -37,7 +48,7 @@ class User extends Authenticatable
 
 
     public function rol(){
-        return $this->belongsToMany(Role::class);
+        return $this->belongsToMany(Role::class,'role_user','user_id','role_id');
     }
 
 

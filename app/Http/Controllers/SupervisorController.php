@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Asesores;
+use App\Asesor;
+use App\Supervisor;
 use App\User;
-use App\UserAsesor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +41,7 @@ class SupervisorController extends Controller
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
-                'identificacion' => 'required|unique:asesores|max:11',
+                'identificacion' => 'required|unique:users|max:11',
                 'email' => 'required|unique:users',
             ]);
 
@@ -72,11 +72,10 @@ class SupervisorController extends Controller
 
     public function gridSupervisores()
     {
-        $supervisores = User::join('role_user', 'users.id', 'role_user.user_id')
-            ->where('role_user.role_id', 4)
-            ->where('users.empresa_id', Auth::user()->empresa_id)
-            ->select('users.*')
-            ->get();
+        $supervisores = Supervisor::with('rol')->whereHas('rol',function ($query) {
+           $query->where('slug','Super');
+        })->where('empresa_id', Auth::user()->empresa_id);
+
         return DataTables::of($supervisores)
             ->addColumn('action', function ($supervisores) {
                 $acciones = '<div class="btn-group">';
@@ -169,17 +168,15 @@ class SupervisorController extends Controller
     public function gridNoAsesores($id)
     {
 
-        $userAsesor = UserAsesor::where('user_id', $id)->get(['asesore_id']);
-        $arrayAsesor = [];
-        if (count($userAsesor) == 0) {
-            $asesores = Asesores::where('empresa_id',Auth::user()->empresa_id)->get();
-        } else {
-            for ($i = 0; $i < count($userAsesor); $i++) {
-                $arrayAsesor[$i] = $userAsesor[$i]->asesore_id;
-            }
 
-            $asesores = Asesores::where('empresa_id',Auth::user()->empresa_id)->whereNotIn('id', $arrayAsesor)->get();
-        }
+        $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
+            $query->where('roles.slug','asesor');
+        })
+            ->whereDoesntHave('supervisor', function ($query) use ($id){
+                $query->where('supervisor_id','=',$id);
+            })
+            ->where('empresa_id',Auth::user()->empresa_id)->get();
+
 
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
@@ -193,9 +190,13 @@ class SupervisorController extends Controller
 
     public function gridSiAsesores($id)
     {
-        $userAsesor = UserAsesor::where('user_id', $id)->get();
-
-        $asesores = Asesores::leftJoin('user_asesors', 'asesores.id', 'user_asesors.asesore_id')->where('user_asesors.user_id', $id)->where('empresa_id',Auth::user()->empresa_id)->get(['asesores.*']);
+        $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
+            $query->where('roles.slug','asesor');
+        })
+            ->whereHas('supervisor', function ($query) use ($id){
+                $query->where('supervisor_id','=',$id);
+            })
+            ->where('empresa_id',Auth::user()->empresa_id)->get();
 
         return DataTables::of($asesores)
             ->addColumn('action', function ($asesores) {
@@ -209,10 +210,12 @@ class SupervisorController extends Controller
 
     public function agregaAsesor(Request $request)
     {
-        $userAsesor = new UserAsesor();
+        $supervisor = Supervisor::findOrFail($request->idsuper);
+        $supervisor->asesores()->syncWithoutDetaching($request->id);
+        /*$userAsesor = new UserAsesor();
         $userAsesor->user_id = $request->idsuper;
         $userAsesor->asesore_id = $request->id;
-        $userAsesor->save();
+        $userAsesor->save();*/
         $result['estado'] = TRUE;
         $result['mensaje'] = 'agregado';
         return $result;
@@ -220,7 +223,9 @@ class SupervisorController extends Controller
 
     public function quitarAsesor(Request $request)
     {
-        UserAsesor::where('user_id', $request->idsuper)->where('asesore_id', $request->id)->delete();
+        //UserAsesor::where('user_id', $request->idsuper)->where('asesore_id', $request->id)->delete();
+        $supervisor = Supervisor::findOrFail($request->idsuper);
+        $supervisor->asesores()->detach($request->id);
         $result['estado'] = TRUE;
         $result['mensaje'] = 'Eliminado';
         return $result;
@@ -229,7 +234,7 @@ class SupervisorController extends Controller
 
     public function exportar()
     {
-        $supervisores = User::with('rol')->whereHas('rol', function ($query){
+        $supervisores = Supervisor::with('rol')->whereHas('rol', function ($query){
             $query->where('slug','super');
         })->where('empresa_id',Auth::user()->empresa_id)->get();
 

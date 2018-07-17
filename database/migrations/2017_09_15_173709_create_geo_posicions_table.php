@@ -20,7 +20,7 @@ class CreateGeoPosicionsTable extends Migration
             $table->string('direccion')->nullable();
             $table->dateTime('fecha');
             $table->string('identificacion',10)->index();
-            $table->foreign('identificacion')->references('identificacion')->on('asesores')->onDelete('cascade');
+            $table->foreign('identificacion')->references('identificacion')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

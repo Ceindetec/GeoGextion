@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Asesor;
 use App\Asesores;
 use App\Empresas;
 use App\GeoPosicion;
@@ -36,23 +37,23 @@ class HomeController extends Controller
     public function index()
     {
         if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')) {
-            $asesores = Asesores::select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                $query->where('slug', 'asesor');
+            })->where('empresa_id', auth()->user()->empresa_id)
                 ->where('estado', 'A')
-                ->where('asesores.empresa_id', Auth::user()->empresa_id)
-                ->pluck('nombre', 'identificacion')
-                ->all();
-        } else {
-            $asesores = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('asesores.estado', 'A')
+                ->pluck('nombre','identificacion');
+
+        } else {
+            $asesores = Asesor::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+                ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                ->where('users.estado', 'A')
                 ->where('user_asesors.user_id', Auth::User()->id)
-                ->where('asesores.empresa_id', Auth::user()->empresa_id)
+                ->where('users.empresa_id', Auth::user()->empresa_id)
                 ->pluck('nombre', 'identificacion')
                 ->all();
         }
-//        dd($asesores);
-        $asesores = array_add($asesores, '', 'Seleccione');
-        arsort($asesores);
+
         return view('home', compact('asesores'));
     }
 
