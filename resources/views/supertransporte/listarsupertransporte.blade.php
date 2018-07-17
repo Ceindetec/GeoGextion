@@ -38,7 +38,7 @@
                 <h4 class="header-title m-t-0 m-b-20">Lista de Supervisores
                     @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
                         <span class="pull-right">
-                        <a href="{{route('exportsuperase')}}" class="btn btn-success">
+                        <a href="{{route('exporsupertrans')}}" class="btn btn-success">
                             <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                         </a>
                     </span>
@@ -157,8 +157,6 @@
                 @endif
                 order: [[1, 'asc']]
             });
-
-
         });
 
         function cambiarestado(id) {

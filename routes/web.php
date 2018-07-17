@@ -120,6 +120,8 @@ Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::post('supervisortransportecrear', 'SupervisorTransporteController@crearSupervisor');
     Route::get('supervisortransporteeditar/{id}', 'SupervisorTransporteController@viewEditarSupervisorTransporte')->name('supervisortransporte.editar');
     Route::post('supervisortransporteeditar/{id}', 'SupervisorTransporteController@editarSupervisorTransporte');
+
+    Route::get('exportarsupervisoresasetrans','SupervisorTransporteController@exportar')->name('exporsupertrans');
 });
 
 

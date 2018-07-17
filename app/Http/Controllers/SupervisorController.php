@@ -212,10 +212,6 @@ class SupervisorController extends Controller
     {
         $supervisor = Supervisor::findOrFail($request->idsuper);
         $supervisor->asesores()->syncWithoutDetaching($request->id);
-        /*$userAsesor = new UserAsesor();
-        $userAsesor->user_id = $request->idsuper;
-        $userAsesor->asesore_id = $request->id;
-        $userAsesor->save();*/
         $result['estado'] = TRUE;
         $result['mensaje'] = 'agregado';
         return $result;
