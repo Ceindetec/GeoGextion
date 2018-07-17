@@ -6,8 +6,10 @@ use App\Asesor;
 use App\Asesores;
 use App\User;
 use Caffeinated\Shinobi\Facades\Shinobi;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
 class AsesorController extends Controller
@@ -161,5 +163,79 @@ class AsesorController extends Controller
             $result['mensaje'] = 'No fue posible cambiar el estado ' . $exception->getMessage();
         }
         return $result;
+    }
+
+
+    public function exportar()
+    {
+        $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
+            $query->where('slug','asesor');
+        })->where('empresa_id',Auth::user()->empresa_id)->get();
+
+        \Excel::create('Asesores', function ($excel) use ($asesores) {
+
+            $excel->sheet('Asesores', function ($sheet) use ($asesores) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                    'E' => 30,
+                    'F' => 30
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE ASESORES'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+
+                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+
+                $fila = 7;
+                if (sizeof($asesores) > 0) {
+                    $sheet->row(6, array('Identificacion', 'Nombres', 'Apellidos','Email','Telefono','Estado'));
+                    $sheet->row(6, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+
+
+                    foreach ($asesores as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->identificacion,
+                                $miresul->nombres,
+                                $miresul->apellidos,
+                                $miresul->email,
+                                $miresul->telefono,
+                                $miresul->estado
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xlsx');
     }
 }

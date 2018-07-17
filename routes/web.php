@@ -47,6 +47,7 @@ Route::group(['middleware' => ['supervisor','validarEstado']], function () {
     Route::get('/asesor/editar/{id}', 'AsesorController@viewEditarAsesor')->name('asesor.editar');
     Route::post('/asesor/editar/{id}', 'AsesorController@editarAsesor')->name('asesor.editarp');
     Route::post('/asesor/cambiarestado', 'AsesorController@cambiarEstadoAsesor')->name('asesor.cambiarestado');
+    Route::get('exportarasesores','AsesorController@exportar')->name('exportasesor');
 
 
     Route::get('geoposicionfinal', 'HomeController@geoPosicionfinal')->name('geoposicionfinal');

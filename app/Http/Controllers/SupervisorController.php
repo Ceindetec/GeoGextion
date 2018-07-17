@@ -264,7 +264,7 @@ class SupervisorController extends Controller
                     )
                 ));
 
-                $sheet->row(1, array('', 'REPORTE DE ADMINISTRADORES'));
+                $sheet->row(1, array('', 'REPORTE DE SUPERVISORES'));
                 $sheet->row(1, function ($row) {
                     $row->setBackground('#4CAF50');
                 });
