@@ -37,7 +37,7 @@ Route::get('datatable_es', 'IndiomasController@espanol')->name('datatable_es');
 
 //Auth::routes();
 
-Route::group(['middleware' => ['supervisor','validarEstado']], function () {
+Route::group(['middleware' => ['auth','supervisor','validarEstado']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
     Route::get('/asesores', 'AsesorController@listaAsesores')->name('listaacesores');
@@ -66,7 +66,7 @@ Route::group(['middleware' => ['supervisor','validarEstado']], function () {
 
 
 /*inicia superAdminstrador*/
-Route::group(['middleware' => ['superAdmin','validarEstado']], function () {
+Route::group(['middleware' => ['auth','superAdmin','validarEstado']], function () {
 
     Route::get('listaempresas', 'EmpresaController@listaEmpresas')->name('listaEmpresas');
     Route::get('gridaempresas', 'EmpresaController@gridEmpresas')->name('gridaempresas');
@@ -82,7 +82,7 @@ Route::group(['middleware' => ['superAdmin','validarEstado']], function () {
 
 
 /*inicia Adminstrador*/
-Route::group(['middleware' => ['superAdministradorEmpresa','validarEstado']], function () {
+Route::group(['middleware' => ['auth','superAdministradorEmpresa','validarEstado']], function () {
     Route::get('listaadministrador', 'AdministradorController@listaAdministradores')->name('listaAdministradores');
     Route::get('gridaadministrador', 'AdministradorController@gridAdministradores')->name('gridaadministradores');
     Route::get('administrador/crear', 'AdministradorController@viewCrearAdministrador')->name('administrador.crear');
@@ -94,7 +94,7 @@ Route::group(['middleware' => ['superAdministradorEmpresa','validarEstado']], fu
 });
 
 /*inicia supervisores*/
-Route::group(['middleware' => ['administrador','validarEstado']], function () {
+Route::group(['middleware' => ['auth','administrador','validarEstado']], function () {
     Route::get('listasupervisores', 'SupervisorController@listaSupervisores')->name('listasupervisores');
     Route::get('gridasupervisores', 'SupervisorController@gridSupervisores')->name('gridasupervisores');
     Route::get('supervisor/crear', 'SupervisorController@viewCrearSupervisor')->name('supervisor.crear');
@@ -108,12 +108,9 @@ Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::post('supervisor/agregaasesor', 'SupervisorController@agregaAsesor')->name('supervisor.agregaasesor');
     Route::post('supervisor/quitarasesor', 'SupervisorController@quitarAsesor')->name('supervisor.quitarasesor');
     Route::get('exportarsupervisoresase','SupervisorController@exportar')->name('exportsuperase');
-});
 
+    /*supervisor transporte */
 
-/*supervisor transporte */
-
-Route::group(['middleware' => ['administrador','validarEstado']], function () {
     Route::get('listasupervisorestransporte', 'SupervisorTransporteController@listaSupervisoresTransporte')->name('listasupervisorestransporte');
     Route::get('gridasupervisorestrasporte', 'SupervisorTransporteController@gridSupervisoresTrasporte')->name('gridasupervisorestrasporte');
     Route::get('supervisortransportecrear', 'SupervisorTransporteController@viewCrearSupervisor')->name('supervisortransporte.crear');
@@ -123,6 +120,22 @@ Route::group(['middleware' => ['administrador','validarEstado']], function () {
 
     Route::get('exportarsupervisoresasetrans','SupervisorTransporteController@exportar')->name('exporsupertrans');
 });
+
+
+Route::group(['middleware' => ['auth','SuperTransporte','validarEstado']], function () {
+    Route::get('/home', 'HomeController@index')->name('home');
+
+    Route::get('listartransportadores','TransporteController@listarTrasportadores')->name('listatrasportador');
+    Route::get('gridtransportadores','TransporteController@gridTransportadores')->name('gridtransportadores');
+    Route::get('creartransportador','TransporteController@viewCrearTransportador')->name('transportadores.crear');
+    Route::get('transportadoreditar/{id}', 'TransporteController@viewEditarTransportador')->name('transportadores.editar');
+    Route::post('transportadoreditar/{id}', 'TransporteController@editarTransportador');
+    Route::post('creartransportador','TransporteController@crearTransportador');
+
+});
+
+
+
 
 
 Route::get('mapas', function(){

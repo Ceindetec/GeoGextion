@@ -2,9 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 
-class Trasportador extends Model
+class Trasportador extends User
 {
     //
 }

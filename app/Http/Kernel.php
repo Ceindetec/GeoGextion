@@ -5,6 +5,7 @@ namespace App\Http;
 use App\Http\Middleware\Administrador;
 use App\Http\Middleware\SuperAdmin;
 use App\Http\Middleware\SuperAdministradorEmpresa;
+use App\Http\Middleware\SuperTransporte;
 use App\Http\Middleware\Supervisor;
 use App\Http\Middleware\ValidarEstado;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
@@ -74,5 +75,6 @@ class Kernel extends HttpKernel
         'administrador' =>Administrador::class,
         'supervisor' =>Supervisor::class,
         'validarEstado' =>ValidarEstado::class,
+        'SuperTransporte' => SuperTransporte::class
     ];
 }

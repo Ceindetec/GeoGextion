@@ -44,7 +44,7 @@
                             <li><a href="{{route('listasupervisorestransporte')}}"></i><span> Supervisores </span></a>
                             </li>
                         @endif
-                        <li><a href="{{route('listaacesores')}}"></i><span> Asesores </span></a></li>
+                        <li><a href="{{route('listatrasportador')}}"></i><span> Transportadores </span></a></li>
                     </ul>
                 </li>
 
