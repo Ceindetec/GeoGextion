@@ -1,38 +1,29 @@
-<div id="modalcrearsupervisor">
-    {{Form::open(['route'=>['transportadores.crear'], 'class'=>'form-horizontal', 'id'=>'crearsupervisor'])}}
+<div id="modalcrearvehiculo">
+    {{Form::model($vehiculo,['route'=>['vehiculo.editar',$vehiculo->id], 'class'=>'form-horizontal', 'id'=>'crearvehiculo'])}}
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h4 class="modal-title">Agregar transportador</h4>
+        <h4 class="modal-title">Agregar vehiculo</h4>
     </div>
     <div class="modal-body">
         <div class="form-group">
-            <label class="control-label">Identificacion</label>
-            {{Form::text('identificacion', null ,['class'=>'form-control', "required", "maxlength"=>"10", "data-parsley-type"=>"number"])}}
+            <label class="control-label">Placa</label>
+            {{Form::text('placa', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"10"])}}
         </div>
 
         <div class="form-group">
-            <label class="control-label">Nombres</label>
-            {{Form::text('nombres', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
+            <label class="control-label">Marca</label>
+            {{Form::select('marca_id', $marcas,null,['class'=>'form-control toupercase', "required", "placeholder"=>"selecciones una marca"])}}
         </div>
 
         <div class="form-group">
-            <label class="control-label">Apellidos</label>
-            {{Form::text('apellidos', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"40", "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$"])}}
+            <label class="control-label">Modelo</label>
+            {{Form::text('modelo', null ,['class'=>'form-control toupercase', "required", "maxlength"=>"4", "data-parsley-type"=>"number"])}}
         </div>
 
-        <div class="form-group">
-            <label class="control-label">E-mail</label>
-            {{Form::email('email', null ,['class'=>'form-control', 'required'])}}
-        </div>
 
         <div class="form-group">
-            <label class="control-label">Telefono</label>
-            {{Form::text('telefono', null ,['class'=>'form-control',  "data-parsley-type"=>"number", "maxlength"=>"10"])}}
-        </div>
-
-        <div class="form-group">
-            <label class="control-label">Vehiculo</label>
-            {{Form::select('vehiculo_id',$vehiculos, null ,['class'=>'form-control', "maxlength"=>"10",'placeholder'=>'Seleccione vehiculo'])}}
+            <label class="control-label">Capacidad</label>
+            {{Form::text('capacidad', null ,['class'=>'form-control',  "data-parsley-pattern"=>"^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+(\s*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]*)*[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ]+$", "maxlength"=>"100"])}}
         </div>
     </div>
     <div class="modal-footer">
@@ -44,8 +35,8 @@
 
 <script>
     $(function () {
-        $("#crearsupervisor").parsley();
-        $("#crearsupervisor").submit(function (e) {
+        $("#crearvehiculo").parsley();
+        $("#crearvehiculo").submit(function (e) {
             e.preventDefault();
             var form = $(this);
             $.ajax({
@@ -87,12 +78,22 @@
                     table.ajax.reload();
                 },
                 error : function(xhr, status) {
-                    var message = "Error de ejecución: " + xhr.status + " " + xhr.statusText;
-                    swal(
-                        'Error!!',
-                        message,
-                        'error'
-                    )
+                    if(xhr.status === 400){
+                        var message = "Error de ejecución: " + xhr.status + " " + xhr.responseJSON.mensaje;
+                        swal(
+                            'Error!!',
+                            message,
+                            'error'
+                        )
+                    }else{
+                        var message = "Error de ejecución: " + xhr.status + " " + xhr.statusText;
+                        swal(
+                            'Error!!',
+                            message,
+                            'error'
+                        )
+                    }
+
                 },
                 // código a ejecutar sin importar si la petición falló o no
                 complete : function(xhr, status) {

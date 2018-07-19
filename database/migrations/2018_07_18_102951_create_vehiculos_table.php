@@ -17,9 +17,12 @@ class CreateVehiculosTable extends Migration
             $table->increments('id');
             $table->string('modelo');
             $table->string('capacidad');
-            $table->string('placa')->uniqued();
+            $table->string('placa');
             $table->integer('marca_id')->unsigned();
+            $table->enum('estado',['A','I'])->default('A');
+            $table->unsignedInteger('empresa_id');
             $table->foreign('marca_id')->references('id')->on('marcas')->onDelete('cascade');
+            $table->foreign('empresa_id')->references('id')->on('empresas')->onDelete('cascade');
             $table->timestamps();
         });
     }

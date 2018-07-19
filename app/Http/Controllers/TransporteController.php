@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Trasportador;
 use App\User;
+use App\Vehiculo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
@@ -34,7 +35,8 @@ class TransporteController extends Controller
     }
 
     public function viewCrearTransportador(){
-        return view('transportadores.modalcreartrasportador');
+        $vehiculos = Vehiculo::pluck('placa','id');
+        return view('transportadores.modalcreartrasportador', compact('vehiculos'));
     }
 
     public function crearTransportador(Request $request){
@@ -49,17 +51,18 @@ class TransporteController extends Controller
                 return $validator->errors()->all();
             }
 
-            $supervisor = new User();
-            $supervisor->name = $request->nombres;
-            $supervisor->email = $request->email;
-            $supervisor->identificacion = trim($request->identificacion);
-            $supervisor->nombres = trim($request->nombres);
-            $supervisor->apellidos = trim($request->apellidos);
-            $supervisor->telefono = $request->telefono;
-            $supervisor->password = bcrypt(trim($request->identificacion));
-            $supervisor->empresa_id = Auth::user()->empresa_id;
-            $supervisor->save();
-            $supervisor->assignRole(User::TRASPORTADOR);
+            $transportador = new Trasportador();
+            $transportador->name = $request->nombres;
+            $transportador->email = $request->email;
+            $transportador->identificacion = trim($request->identificacion);
+            $transportador->nombres = trim($request->nombres);
+            $transportador->apellidos = trim($request->apellidos);
+            $transportador->telefono = $request->telefono;
+            $transportador->password = bcrypt(trim($request->identificacion));
+            $transportador->empresa_id = Auth::user()->empresa_id;
+            $transportador->vehiculo_id = $request->vehiculo_id;
+            $transportador->save();
+            $transportador->assignRole(User::TRASPORTADOR);
             $result['estado'] = true;
             $result['mensaje'] = 'Trasportador agregado satisfactoriamente.';
 
@@ -74,16 +77,17 @@ class TransporteController extends Controller
     public function viewEditarTransportador($id)
     {
         $transportador = User::find($id);
-        return view('transportadores.modaleditartrasportador', compact('transportador'));
+        $vehiculos = Vehiculo::pluck('placa','id');
+        return view('transportadores.modaleditartrasportador', compact('transportador','vehiculos'));
     }
 
     public function editarTransportador(Request $request, $id)
     {
         $result = [];
         try {
-            $supervisor = User::find($id);
-            if ($supervisor->identificacion != $request->identificacion) {
-                if ($supervisor->email != $request->email) {
+            $transportado = Trasportador::find($id);
+            if ($transportado->identificacion != $request->identificacion) {
+                if ($transportado->email != $request->email) {
                     $validator = \Validator::make($request->all(), [
                         'identificacion' => 'required|unique:users|max:11',
                         'email' => 'required|unique:users',
@@ -100,7 +104,7 @@ class TransporteController extends Controller
                         return $validator->errors()->all();
                     }
                 }
-            } else if ($supervisor->email != $request->email) {
+            } else if ($transportado->email != $request->email) {
                 $validator = \Validator::make($request->all(), [
                     'email' => 'required|unique:users',
                 ]);
@@ -109,7 +113,8 @@ class TransporteController extends Controller
                     return $validator->errors()->all();
                 }
             }
-            $supervisor->update($request->all());
+            $transportado->fill($request->all());
+            $transportado->save();
             $result['estado'] = true;
             $result['mensaje'] = 'supervisor actulizado satisfactoriamente.';
         } catch (\Exception $exception) {

@@ -45,6 +45,7 @@
                             </li>
                         @endif
                         <li><a href="{{route('listatrasportador')}}"></i><span> Transportadores </span></a></li>
+                        <li><a href="{{route('listarvehiculo')}}"></i><span> Vehiculos </span></a></li>
                     </ul>
                 </li>
 

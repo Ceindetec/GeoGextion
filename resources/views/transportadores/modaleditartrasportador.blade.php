@@ -29,6 +29,10 @@
             <label class="control-label">Telefono</label>
             {{Form::text('telefono', null ,['class'=>'form-control', "data-parsley-type"=>"number", "maxlength"=>"10"])}}
         </div>
+        <div class="form-group">
+            <label class="control-label">Vehiculo</label>
+            {{Form::select('vehiculo_id',$vehiculos, null ,['class'=>'form-control', "maxlength"=>"10",'placeholder'=>'Seleccione vehiculo'])}}
+        </div>
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>

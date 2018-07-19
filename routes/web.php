@@ -119,6 +119,14 @@ Route::group(['middleware' => ['auth','administrador','validarEstado']], functio
     Route::post('supervisortransporteeditar/{id}', 'SupervisorTransporteController@editarSupervisorTransporte');
 
     Route::get('exportarsupervisoresasetrans','SupervisorTransporteController@exportar')->name('exporsupertrans');
+
+    Route::get('listarvehiculo','VehiculoController@listarVehiculos')->name('listarvehiculo');
+    Route::get('crearvehiculo','VehiculoController@viewCrearVehiculo')->name('vehiculo.crear');
+    Route::post('crearvehiculo','VehiculoController@crearVehiculo');
+    Route::get('gridvehiculos','VehiculoController@gridVehiculos')->name('gridvehiculos');
+    Route::get('editarvehiculo/{id}','VehiculoController@viewEditarVehiculo')->name('vehiculo.editar');
+    Route::post('editarvehiculo/{id}','VehiculoController@editarVehiculo');
+    Route::post('cambiarestadovehiculo','VehiculoController@cambiarEstado')->name('vehiculo.estado');
 });
 
 
@@ -133,6 +141,8 @@ Route::group(['middleware' => ['auth','SuperTransporte','validarEstado']], funct
     Route::post('creartransportador','TransporteController@crearTransportador');
 
 });
+
+
 
 
 
