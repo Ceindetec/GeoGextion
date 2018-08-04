@@ -7,6 +7,8 @@ use App\Http\Middleware\SuperAdmin;
 use App\Http\Middleware\SuperAdministradorEmpresa;
 use App\Http\Middleware\SuperTransporte;
 use App\Http\Middleware\Supervisor;
+use App\Http\Middleware\SupervisorAsesor;
+use App\Http\Middleware\SupervisorTrasnporte;
 use App\Http\Middleware\ValidarEstado;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
@@ -73,8 +75,8 @@ class Kernel extends HttpKernel
         'superAdmin' =>SuperAdmin::class,
         'superAdministradorEmpresa' =>SuperAdministradorEmpresa::class,
         'administrador' =>Administrador::class,
-        'supervisor' =>Supervisor::class,
         'validarEstado' =>ValidarEstado::class,
-        'SuperTransporte' => SuperTransporte::class
+        'supervisorTrasnporte' => SupervisorTrasnporte::class,
+        'supervisorAsesor' => SupervisorAsesor::class
     ];
 }

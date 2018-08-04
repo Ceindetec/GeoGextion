@@ -16,9 +16,9 @@ class Administrador
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->isRole('superadmin')){
+        if(auth()->user()->isRole('superadmin')){
             return redirect('listaempresas');
-        }else if(Auth::user()->isRole('sadminempresa')||Auth::user()->isRole('admin')) {
+        }else if(auth()->user()->isRole('sadminempresa')||auth()->user()->isRole('admin')) {
             //return redirect('listaempresas');
         }else{
             return redirect('home');

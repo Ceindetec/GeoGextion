@@ -3,9 +3,8 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Support\Facades\Auth;
 
-class Supervisor
+class SupervisorAsesor
 {
     /**
      * Handle an incoming request.
@@ -16,8 +15,10 @@ class Supervisor
      */
     public function handle($request, Closure $next)
     {
-        if(Auth::user()->isRole('superadmin')) {
+        if(auth()->user()->isRole('superadmin')) {
             return redirect('listaempresas');
+        }else if(auth()->user()->isRole('asesor') || auth()->user()->isRole('trasporte') || auth()->user()->isRole('supert')){
+            return redirect('home');
         }
         return $next($request);
     }
