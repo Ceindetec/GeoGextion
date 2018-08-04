@@ -38,7 +38,7 @@
                 <h4 class="header-title m-t-0 m-b-20">Lista de Trasportadores
                     @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
                         <span class="pull-right">
-                        <a href="{{route('exporsupertrans')}}" class="btn btn-success">
+                        <a href="{{route('exportatrasportadores')}}" class="btn btn-success">
                             <i class="fa fa-file-excel-o" aria-hidden="true"></i>
                         </a>
                     </span>
@@ -54,6 +54,7 @@
                         <th>Apellidos</th>
                         <th>Telfono</th>
                         <th>Email</th>
+                        <th>Vehiculo placa</th>
                         <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
@@ -108,6 +109,7 @@
                     {data: 'apellidos', name: 'apellidos'},
                     {data: 'telefono', name: 'telefono'},
                     {data: 'email', name: 'email'},
+                    {data: 'vehiculo.placa', name: 'vehiculo.placa'},
                     {
                         data: 'estado',
                         name: 'estado',

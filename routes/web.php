@@ -120,6 +120,8 @@ Route::group(['middleware' => ['auth','administrador','validarEstado']], functio
 
     Route::get('exportarsupervisoresasetrans','SupervisorTransporteController@exportar')->name('exporsupertrans');
 
+    /*ruta de los vehiculos */
+
     Route::get('listarvehiculo','VehiculoController@listarVehiculos')->name('listarvehiculo');
     Route::get('crearvehiculo','VehiculoController@viewCrearVehiculo')->name('vehiculo.crear');
     Route::post('crearvehiculo','VehiculoController@crearVehiculo');
@@ -127,18 +129,21 @@ Route::group(['middleware' => ['auth','administrador','validarEstado']], functio
     Route::get('editarvehiculo/{id}','VehiculoController@viewEditarVehiculo')->name('vehiculo.editar');
     Route::post('editarvehiculo/{id}','VehiculoController@editarVehiculo');
     Route::post('cambiarestadovehiculo','VehiculoController@cambiarEstado')->name('vehiculo.estado');
+    Route::get('exportatrvehiculos','VehiculoController@exportarVehiculos')->name('exportatrvehiculos');
 });
 
 
 Route::group(['middleware' => ['auth','SuperTransporte','validarEstado']], function () {
     Route::get('/home', 'HomeController@index')->name('home');
 
+    /*rutas trasnsportadores*/
     Route::get('listartransportadores','TransporteController@listarTrasportadores')->name('listatrasportador');
     Route::get('gridtransportadores','TransporteController@gridTransportadores')->name('gridtransportadores');
     Route::get('creartransportador','TransporteController@viewCrearTransportador')->name('transportadores.crear');
     Route::get('transportadoreditar/{id}', 'TransporteController@viewEditarTransportador')->name('transportadores.editar');
     Route::post('transportadoreditar/{id}', 'TransporteController@editarTransportador');
     Route::post('creartransportador','TransporteController@crearTransportador');
+    Route::get('exportatrasportadores','TransporteController@exportarTransportadores')->name('exportatrasportadores');
 
 });
 

@@ -5,19 +5,23 @@ namespace App\Http\Controllers;
 use App\Trasportador;
 use App\User;
 use App\Vehiculo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
 class TransporteController extends Controller
 {
-    public function listarTrasportadores(){
+    public function listarTrasportadores()
+    {
         return view('transportadores.listatrasportadores');
     }
 
-    public function gridTransportadores(){
-        $transportadores = Trasportador::with('rol')->whereHas('rol',function ($query) {
-            $query->where('role_id',User::TRASPORTADOR);
+    public function gridTransportadores()
+    {
+        $transportadores = Trasportador::with('rol', 'vehiculo')->whereHas('rol', function ($query) {
+            $query->where('role_id', User::TRASPORTADOR);
         })->where('empresa_id', Auth::user()->empresa_id);
 
         return DataTables::of($transportadores)
@@ -34,12 +38,14 @@ class TransporteController extends Controller
             ->make(true);
     }
 
-    public function viewCrearTransportador(){
-        $vehiculos = Vehiculo::pluck('placa','id');
+    public function viewCrearTransportador()
+    {
+        $vehiculos = Vehiculo::pluck('placa', 'id');
         return view('transportadores.modalcreartrasportador', compact('vehiculos'));
     }
 
-    public function crearTransportador(Request $request){
+    public function crearTransportador(Request $request)
+    {
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
@@ -77,8 +83,8 @@ class TransporteController extends Controller
     public function viewEditarTransportador($id)
     {
         $transportador = User::find($id);
-        $vehiculos = Vehiculo::pluck('placa','id');
-        return view('transportadores.modaleditartrasportador', compact('transportador','vehiculos'));
+        $vehiculos = Vehiculo::pluck('placa', 'id');
+        return view('transportadores.modaleditartrasportador', compact('transportador', 'vehiculos'));
     }
 
     public function editarTransportador(Request $request, $id)
@@ -122,5 +128,81 @@ class TransporteController extends Controller
             $result['mensaje'] = 'No fue posible actualizar al supervisor. ' . $exception->getMessage();
         }
         return $result;
+    }
+
+
+    public function exportarTransportadores()
+    {
+        $supervisores = Trasportador::with('rol','vehiculo')->whereHas('rol', function ($query){
+            $query->where('role_id',User::TRASPORTADOR);
+        })->where('empresa_id',Auth::user()->empresa_id)->get();
+
+        \Excel::create('Transportadores', function ($excel) use ($supervisores) {
+
+            $excel->sheet('Transportadores', function ($sheet) use ($supervisores) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                    'E' => 30,
+                    'F' => 30,
+                    'G' => 30
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE TRANSPORTADORES'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+
+                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+
+                $fila = 7;
+                if (sizeof($supervisores) > 0) {
+                    $sheet->row(6, array('Identificacion', 'Nombres', 'Apellidos','Email','Telefono','Placa','Estado'));
+                    $sheet->row(6, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+
+
+                    foreach ($supervisores as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->identificacion,
+                                $miresul->nombres,
+                                $miresul->apellidos,
+                                $miresul->email,
+                                $miresul->telefono,
+                                $miresul->vehiculo->placa,
+                                $miresul->estado
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xlsx');
     }
 }

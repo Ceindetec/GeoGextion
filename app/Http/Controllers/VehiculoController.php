@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Marca;
 use App\Vehiculo;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
 class VehiculoController extends Controller
@@ -142,5 +145,75 @@ class VehiculoController extends Controller
             $result['mensaje'] = 'No fue posible cambiar el estado ' . $exception->getMessage();
         }
         return $result;
+    }
+
+    public function exportarVehiculos()
+    {
+
+        $vehiculos = Vehiculo::with('marca')->where('empresa_id',Auth::user()->empresa_id)->get();
+
+        \Excel::create('Transportadores', function ($excel) use ($vehiculos) {
+
+            $excel->sheet('Transportadores', function ($sheet) use ($vehiculos) {
+                $hoy = Carbon::now();
+                $objDrawing = new PHPExcel_Worksheet_Drawing;
+                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setHeight(50);
+                $objDrawing->setCoordinates('A1');
+                $objDrawing->setWorksheet($sheet);
+                $objDrawing->setOffsetY(10);
+                $sheet->setWidth(array(
+                    'A' => 30,
+                    'B' => 30,
+                    'C' => 30,
+                    'D' => 30,
+                    'E' => 30,
+                    'F' => 30,
+                ));
+
+                $sheet->setMergeColumn(array(
+                    'columns' => array('A'),
+                    'rows' => array(
+                        array(1, 4),
+                    )
+                ));
+
+                $sheet->row(1, array('', 'REPORTE DE VEHICULOS'));
+                $sheet->row(1, function ($row) {
+                    $row->setBackground('#4CAF50');
+                });
+
+                $sheet->cells('A1:A4', function ($cells) {
+                    $cells->setBackground('#FFFFFF');
+                });
+
+                $sheet->setBorder('A1:A4', 'thin');
+
+
+                $sheet->row(4, array('','','','', 'Fecha GENERACION:', $hoy));
+
+                $fila = 7;
+                if (sizeof($vehiculos) > 0) {
+                    $sheet->row(6, array('Placa', 'Marca', 'Modelo','Estado'));
+                    $sheet->row(6, function ($row) {
+                        $row->setBackground('#f2f2f2');
+                    });
+
+
+                    foreach ($vehiculos as $miresul) {
+                        $sheet->row($fila,
+                            array($miresul->placa,
+                                $miresul->marca->marca,
+                                $miresul->modelo,
+                                $miresul->estado
+                            ));
+                        $fila++;
+                    }
+                } else
+                    $sheet->row($fila, array('No hay resultados'));
+                $fila++;
+                $fila++;
+            });
+        })->export('xlsx');
     }
 }
