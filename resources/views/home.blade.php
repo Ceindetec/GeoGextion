@@ -63,7 +63,7 @@
 @section('scripts')
 
     <!-- google maps api -->
-    {{Html::script('http://maps.google.com/maps/api/js?key=AIzaSyDAHZxs8NRsHDfR2Zse_9P0mdZFs3rvASQ&callback=initialize')}}
+    {{Html::script('http://maps.google.com/maps/api/js?key=AIzaSyAk3sbqJFg6zDsnVlJ4p1VR8b6PQwcQobU')}}
 
     <!-- main file -->
     {{Html::script('plugins/gmaps/gmaps.min.js')}}
