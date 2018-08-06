@@ -78,7 +78,7 @@
 
                         <label class="control-label col-sm-2">Color superior:</label>
                         <div class="col-sm-10">
-                            <input type="text" name="color" class="colorpicker-default form-control" value="{{$empresa->color}}">
+                            <input type="text" autocomplete="off" name="color" class="colorpicker-default form-control" value="{{$empresa->color}}">
                         </div>
 
                     </div>
