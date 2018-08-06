@@ -71,6 +71,9 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
         Route::get('administrador/editar/{id}', 'SupervisorController@viewEditarSupervisor')->name('administrador.editar');
         Route::post('administrador/editar/{id}', 'SupervisorController@editarSupervisor');
         Route::get('exportaradministradores','AdministradorController@exportar')->name('exportaradmin');
+
+        Route::get('configuracion','ConfiguracionController@index')->name('configuracion');
+        Route::post('configuracion','ConfiguracionController@guardar');
     });
 
 

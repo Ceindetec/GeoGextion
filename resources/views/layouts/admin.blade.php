@@ -1,24 +1,35 @@
-<!DOCTYPE html>
+<?php
+
+$existe = false;
+if (auth()->user()->empresa_id != null) {
+    $empresauser = \App\Empresas::query()->find(auth()->user()->empresa_id);
+    $existe = true;
+}
+
+
+?>
+
+        <!DOCTYPE html>
 <html lang="{{ app()->getLocale() }}">
 <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <title>{{ config('app.name', 'Laravel') }}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-    <meta content="Coderthemes" name="author" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- App favicon -->
     <link rel="shortcut icon" href="{{asset('images/logosmnormal.png')}}">
 
     <!-- C3 charts css -->
-    @yield('antestyles')
+@yield('antestyles')
 
-    {{Html::style('plugins/sweet-alert2/sweetalert2.min.css')}}
+{{Html::style('plugins/sweet-alert2/sweetalert2.min.css')}}
 
 
-    <!-- App css -->
+<!-- App css -->
     {{Html::style('css/bootstrap.min.css')}}
     {{Html::style('css/core.css')}}
     {{Html::style('css/components.css')}}
@@ -32,18 +43,18 @@
 
     <style>
 
-        #contecarga{
+        #contecarga {
             display: none;
             position: absolute;
-            top:0;
+            top: 0;
             width: 98%;
             height: 100%;
             z-index: 5000;
         }
 
-        #fondo{
+        #fondo {
             position: fixed;
-            top:0;
+            top: 0;
             width: 100%;
             height: 100%;
             display: block;
@@ -51,9 +62,9 @@
             opacity: .5;
         }
 
-        #imacarga{
+        #imacarga {
             position: fixed;
-            top:0;
+            top: 0;
             opacity: 1;
         }
 
@@ -64,8 +75,9 @@
             cursor: pointer;
             width: 25px;
         }
+
         tr.shown td.details-control {
-            color:red;
+            color: red;
             /* background: url('../images/details_close.png') no-repeat center center;*/
         }
 
@@ -88,9 +100,15 @@
             <!-- Image logo -->
             <a href="{{route('home')}}" class="logo">
                         <span>
-
-                            <img src="{{url('images/logoblanco.png')}}" alt="" height="50">
-
+                            @if($existe)
+                                @if($empresauser->logo != null)
+                                    <img src="{{url($empresauser->logo)}}" alt="" height="50">
+                                @else
+                                    <img src="{{url('images/logoblanco.png')}}" alt="" height="50">
+                                @endif
+                            @else
+                                <img src="{{url('images/logoblanco.png')}}" alt="" height="50">
+                            @endif
                         </span>
                 <i>
                     <img src="{{url('images/logosmblanco.png')}}" alt="" height="38">
@@ -99,13 +117,15 @@
         </div>
 
         <!-- Button mobile view to collapse sidebar menu -->
-        <div class="navbar navbar-default" role="navigation">
+
+            <div class="navbar navbar-default" role="navigation" style="background-color: {{$existe?$empresauser->color:''}}">
+
             <div class="container">
 
                 <!-- Navbar-left -->
                 <ul class="nav navbar-nav navbar-left nav-menu-left">
                     <li>
-                        <button type="button" class="button-menu-mobile open-left waves-effect">
+                        <button type="button" class="button-menu-mobile open-left waves-effect" style="background-color: {{$existe?$empresauser->color:''}}">
                             <i class="dripicons-menu"></i>
                         </button>
                     </li>
@@ -117,7 +137,8 @@
                 <ul class="nav navbar-nav navbar-right">
 
                     <li class="dropdown user-box">
-                        <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown" aria-expanded="true">
+                        <a href="" class="dropdown-toggle waves-effect user-link" data-toggle="dropdown"
+                           aria-expanded="true">
                             <img src="{{url('images/avatar2.png')}}" alt="user-img" class="img-circle user-img">
                         </a>
 
@@ -127,7 +148,8 @@
                             <li><a href="{{ route('logout') }}"
                                    onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">Logout</a>
-                                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST"
+                                      style="display: none;">
                                     {{ csrf_field() }}
                                 </form>
                             </li>
@@ -138,7 +160,7 @@
 
                 <ul class="nav navbar-nav navbar-right">
                     @if(Auth::user()->empresa_id != null)
-                    <h4 style="margin-top: 23px; color: #ffffff;"> {{Auth::user()->empresa->razon}} </h4>
+                        <h4 style="margin-top: 23px; color: #ffffff;"> {{Auth::user()->empresa->razon}} </h4>
                     @endif
                 </ul>
 
@@ -155,7 +177,6 @@
 
     </div>
     <!-- Left Sidebar End -->
-
 
 
     <!-- ============================================================== -->
@@ -180,7 +201,8 @@
 
     </div>
 
-    <div id='modalBs' class='modal fade' tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+    <div id='modalBs' class='modal fade' tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"
+         style="display: none;">
         <div class="modal-dialog">
             <div class="modal-content">
             </div>
@@ -200,7 +222,6 @@
 
 </div>
 <!-- END wrapper -->
-
 
 
 <!-- jQuery  -->

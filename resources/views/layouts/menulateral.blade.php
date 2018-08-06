@@ -51,6 +51,11 @@
 
                 <li><a href="{{route('consulta')}}"><i class="fa fa-database"></i><span> Consulta </span></a></li>
 
+                @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin"))
+
+                    <li><a href="{{route('configuracion')}}"><i class="fa fa-cogs"></i><span> Configuracion empresa </span></a></li>
+                @endif
+
 
             @endif
 
