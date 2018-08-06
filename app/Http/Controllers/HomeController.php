@@ -62,10 +62,15 @@ class HomeController extends Controller
 
     public function geoPosicionfinal()
     {
-        if (Shinobi::isRole('admin')) {
-            $markets = Asesores::where('estado', 'A')->get();
+        if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
+            $markets = Asesor::with('ultimaposiciones')->where('estado', 'A')
+                ->whereHas('rol', function ($query) {
+                    $query->where('slug', 'asesor');
+                })
+                ->where('empresa_id',auth()->user()->empresa_id)
+                ->get();
         } else {
-            $markets = Asesores::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
+            $markets = Asesor::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
                 ->where('user_asesors.user_id', Auth::User()->id)
                 ->where('estado', 'A')->get();
         }
@@ -77,10 +82,13 @@ class HomeController extends Controller
 
     public function ubicarasesor(Request $request)
     {
-        $markets = Asesores::where('estado', 'A')
-            ->where('identificacion', $request->identificacion)
-            ->first();
-        $markets->getPosition;
+        $markets = Asesor::with('ultimaposiciones')->where('estado', 'A')
+            ->whereHas('rol', function ($query) {
+                $query->where('slug', 'asesor');
+            })
+            ->where('empresa_id',auth()->user()->empresa_id)
+            ->get();
+
         return $markets;
     }
 

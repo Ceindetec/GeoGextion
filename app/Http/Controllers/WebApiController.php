@@ -17,20 +17,19 @@ class WebApiController extends Controller
         try {
             $geposicion = new GeoPosicion($request->all());
 
-            $config = array();
-            $config['center'] = 'auto';
-            $config['onboundschanged'] = 'if (!centreGot) {
-            var mapCentre = map.getCenter();
-            marker_0.setOptions({
-                position: new google.maps.LatLng(mapCentre.lat(), mapCentre.lng())
-                });
-            }
-            centreGot = true;';
 
-            app('map')->initialize($config);
-            $direccion = app('map')->get_address_from_lat_long($request->latitud, $request->longitud);
+            $data_location = "https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=" . $request->latitud . "&lon=" . $request->longitud;
 
-            $geposicion->direccion = $direccion[0];
+            $opts = array('http' => array('header' => "User-Agent: StevesCleverAddressScript 3.7.6\r\n"));
+            $context = stream_context_create($opts);
+
+            // Open the file using the HTTP headers set above
+            $data = file_get_contents($data_location, false, $context);
+
+
+            $data = json_decode($data);
+
+            $geposicion->direccion = $data->display_name;
 
             $geposicion->fecha = Carbon::now();
             $geposicion->save();
@@ -38,7 +37,7 @@ class WebApiController extends Controller
             $result['mensaje'] = 'registrado';
         } catch (\Exception $exception) {
             $result['estado'] = false;
-            $result['mensaje'] = 'Error durante la insercion';
+            $result['mensaje'] = 'Error durante la insercion ' . $exception->getMessage();
         }
         return $result;
     }

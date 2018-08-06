@@ -6,6 +6,7 @@
     <link href="{{asset('plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css')}}" rel="stylesheet">
     <link href="{{asset('plugins/clockpicker/css/bootstrap-clockpicker.min.css')}}" rel="stylesheet">
     <link href="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
+    <link href="{{asset('plugins/leaflet/leaflet.css')}}" rel="stylesheet">
 @endsection
 
 @section('styles')
@@ -55,7 +56,7 @@
         </div>
     </div>
     <div class="gmaps-full">
-        <div id="gmaps-markers" class="gmaps-full1"></div>
+        <div id="otromap" class="gmaps-full1"></div>
     </div>
 
 @endsection
@@ -74,11 +75,15 @@
     <script src="{{asset('plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js')}}"></script>
     <script src="{{asset('plugins/clockpicker/js/bootstrap-clockpicker.min.js')}}"></script>
     <script src="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
+    <script src="{{asset('plugins/leaflet/leaflet.js')}}"></script>
 
     <script>
+        var map;
+
         var ruta = false;
         $(function () {
-            initMap();
+
+            initmapa();
 
             $('#datepicker').datepicker({
                 autoclose: true,
@@ -110,7 +115,8 @@
                         var punto2 = [];
                         for (i = 0; i < data.length; i++) {
                             punto = {
-                                location: {lat: parseFloat(data[i].latitud), lng: parseFloat(data[i].longitud)}, stopover: true
+                                location: {lat: parseFloat(data[i].latitud), lng: parseFloat(data[i].longitud)},
+                                stopover: true
                             }
                             puntos.push(punto);
                         }
@@ -124,7 +130,7 @@
 
                         map.drawRoute({
                             origin: [puntos[0].location.lat, puntos[0].location.lng],
-                            destination: [puntos[puntos.length -1].location.lat, puntos[puntos.length-1].location.lng],
+                            destination: [puntos[puntos.length - 1].location.lat, puntos[puntos.length - 1].location.lng],
                             waypoints: puntos,
                             travelMode: 'walking',
                             strokeColor: '#131540',
@@ -146,58 +152,47 @@
         }
 
 
-
-        function initMap() {
-            setTimeout(function () {
-                map = new GMaps({
-                    div: '#gmaps-markers',
-                    lat: 4.6097100,
-                    lng: -74.0817500,
-                    zoom: 9
-                });
-            }, 200);
-        };
-
         function marketIndividual(id) {
             $.get('{{route('ubicarasesor')}}', {identificacion: id}, function (data) {
-                map.removeMarkers();
-                map.removePolylines();
-                map.addMarker({
-                    lat: data.get_position[data.get_position.length - 1].latitud,
-                    lng: data.get_position[data.get_position.length - 1].longitud,
-                    title: 'Marker with InfoWindow',
-                    infoWindow: {
-                        content: '<p>' + data.nombres + ' ' + data.apellidos + '</p>'
+                map.eachLayer(function (layer) {
+                    if(layer.options.attribution == null){
+                        map.removeLayer(layer);
                     }
                 });
-
-                map.setCenter(
-                    data.get_position[data.get_position.length - 1].latitud,
-                    data.get_position[data.get_position.length - 1].longitud
-                );
-
                 map.setZoom(16);
+                var marker = L.marker([data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud]).addTo(map);
+                marker.bindPopup(`${data[0].nombres} ${data[0].apellidos}`);
+                map.panTo((new L.LatLng(data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud)));
+
             });
         }
 
         function contrucionutimomarke(data) {
-            map.removePolylines();
-            map.removeMarkers();
-            for (i = 0; i < data.length; i++) {
-                if (data[i].get_position.length > 0) {
-                    map.addMarker({
-                        lat: data[i].get_position[data[i].get_position.length - 1].latitud,
-                        lng: data[i].get_position[data[i].get_position.length - 1].longitud,
-                        title: 'Marker with InfoWindow',
-                        infoWindow: {
-                            content: '<p>' + data[i].nombres + ' ' + data[i].apellidos + '</p>'
-                        }
-                    });
+            map.eachLayer(function (layer) {
+                if(layer.options.attribution == null){
+                    map.removeLayer(layer);
                 }
+            });
+            map.setZoom(7);
+            for (i = 0; i < data.length; i++) {
+                var marker = L.marker([data[i].ultimaposiciones.latitud, data[i].ultimaposiciones.longitud]).addTo(map);
+                marker.bindPopup(`${data[i].nombres} ${data[i].apellidos}`);
             }
         }
 
-        var source = new EventSource("{{route('updatemarketgeneral')}}");
+
+        function initmapa() {
+            map = L.map('otromap');
+
+            map.setView([4.612853, -74.0728357], 7);
+
+            L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+                maxZoom: 19
+            }).addTo(map);
+        }
+
+        /*var source = new EventSource("{{--{{route('updatemarketgeneral')}}--}}");
         source.onmessage = function (event) {
             if (!ruta) {
                 if ($('#asesor').val() == '') {
@@ -206,7 +201,7 @@
                     marketIndividual($('#asesor').val());
                 }
             }
-        };
+        };*/
 
     </script>
 

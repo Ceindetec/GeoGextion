@@ -132,7 +132,7 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     Route::group(['middleware' => ['supervisorTrasnporte']], function () {
 
         Route::get('/home', 'HomeController@index')->name('home'); //TODO mirar como mejorar esto
-        
+
         /*/////////RUTAS TRASNSPORTADORES////////////*/
         Route::get('listartransportadores', 'TransporteController@listarTrasportadores')->name('listatrasportador');
         Route::get('gridtransportadores', 'TransporteController@gridTransportadores')->name('gridtransportadores');

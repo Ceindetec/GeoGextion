@@ -35,7 +35,7 @@ class AsesorController extends Controller
     {
         if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
 
-            $asesores = User::whereHas('rol', function ($query) {
+            $asesores = User::query()->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
             })
                 ->where('empresa_id', auth()->user()->empresa_id)->get();
