@@ -180,7 +180,11 @@ class AsesorController extends Controller
             $excel->sheet('Asesores', function ($sheet) use ($asesores) {
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
-                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                if(auth()->user()->empresa->logo == null){
+                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                }else{
+                    $objDrawing->setPath(public_path(auth()->user()->empresa->logo)); //your image path
+                }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');
                 $objDrawing->setWorksheet($sheet);

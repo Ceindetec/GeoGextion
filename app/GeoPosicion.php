@@ -9,6 +9,6 @@ class GeoPosicion extends Model
     protected $fillable = ['latitud','longitud','identificacion'];
 
     public function getAsesor(){
-        return $this->belongsTo('App\Asesores','identificacion','identificacion');
+        return $this->belongsTo(Asesor::class,'identificacion','identificacion');
     }
 }

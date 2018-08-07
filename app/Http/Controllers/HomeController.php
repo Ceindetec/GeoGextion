@@ -12,6 +12,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use phpDocumentor\Reflection\DocBlock\Tags\Reference\Url;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Yajra\DataTables\DataTables;
 use PHPExcel_Worksheet_Drawing;
@@ -180,9 +181,9 @@ class HomeController extends Controller
 
     public function resultadoConsulta(Request $request)
     {
+
         $fecha = explode(" - ", $request->fecha);
         $geposiciones = $this->consultaGeo($request->asesor, $fecha[0], $fecha[1], $request->hora1 . ':00', $request->hora2 . ':00');
-
 //        return $geposiciones;
         return view('consulta.resultado', compact('geposiciones', 'request'));
     }
@@ -209,7 +210,12 @@ class HomeController extends Controller
             $excel->sheet('Geoposiciones', function ($sheet) use ($geposiciones, $rango) {
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
-                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                if($geposiciones[0]->getAsesor->empresa->logo == null){
+
+                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                }else{
+                    $objDrawing->setPath(public_path($geposiciones[0]->getAsesor->empresa->logo));
+                }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');
                 $objDrawing->setWorksheet($sheet);

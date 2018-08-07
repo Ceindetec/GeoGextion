@@ -45,7 +45,7 @@
                     <h4 class="header-title m-t-0 m-b-20">Filtros</h4>
                     <div class="form-group">
                         <label>Asesor:</label>
-                        {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor','placeholder'=>'seleccione asesor'])}}
+                        {{Form::select('asesor', $asesores, 'Selecione..', ['class'=>'form-control', 'id'=>'asesor','placeholder'=>'seleccione asesor','required'])}}
                     </div>
                     <div class="form-group">
                         <label>Fecha:</label>
@@ -118,6 +118,7 @@
 
     <script>
         $(function () {
+            $('#consultar').parsley();
             var end = moment();
             var hora1 = moment().subtract(30, 'minute');
 

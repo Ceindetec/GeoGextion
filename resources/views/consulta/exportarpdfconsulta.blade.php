@@ -70,13 +70,19 @@
 <div class="row">
 
     <div id="logo">
-        <img src="{{url('images/logo1.png')}}" width="220px">
+        @if($geposiciones[0]->getAsesor->empresa->logo == null)
+            <img src="{{url('images/logo1.png')}}" width="220px">
+        @else
+            <img src="{{url($geposiciones[0]->getAsesor->empresa->logo)}}" width="220px">
+        @endif
     </div>
     <div id="info">
         <ul>
             <li><label>Nombre del reporte: </label><strong>Geoposiciones del asesor</strong></li>
             <li><label>Identificación: </label><strong>{{$geposiciones[0]->getAsesor->identificacion}}</strong></li>
-            <li><label>Nombre del asesor: </label><strong>{{$geposiciones[0]->getAsesor->nombres}} {{$geposiciones[0]->getAsesor->apellidos}}</strong></li>
+            <li><label>Nombre del
+                    asesor: </label><strong>{{$geposiciones[0]->getAsesor->nombres}} {{$geposiciones[0]->getAsesor->apellidos}}</strong>
+            </li>
             <li><label>Fecha de generación: </label><strong>{{\Carbon\Carbon::now()->format('d/m/Y')}}</strong></li>
         </ul>
 

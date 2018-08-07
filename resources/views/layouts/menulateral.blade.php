@@ -18,6 +18,8 @@
                 <li><a href="{{route('listaAdministradores')}}"><i
                                 class="fa fa-user-circle"></i><span> Administradores </span></a></li>
                 @endrole
+
+                @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin") || Auth::user()->isRole("super") )
                 <li>
                     <a href="javascript: void(0);" aria-expanded="true"><i class="fi-target"></i>
                         <span> Comercial </span>
@@ -32,7 +34,9 @@
                         <li><a href="{{route('listaacesores')}}"></i><span> Asesores </span></a></li>
                     </ul>
                 </li>
+                @endif
 
+                @if(Auth::user()->isRole("sadminempresa") || Auth::user()->isRole("admin") || Auth::user()->isRole("supert") )
                 <li>
                     <a href="javascript: void(0);" aria-expanded="true"><i class="fa fa-car"></i>
                         <span> Transporte </span>
@@ -48,6 +52,7 @@
                         <li><a href="{{route('listarvehiculo')}}"></i><span> Vehiculos </span></a></li>
                     </ul>
                 </li>
+                @endif
 
                 <li><a href="{{route('consulta')}}"><i class="fa fa-database"></i><span> Consulta </span></a></li>
 
