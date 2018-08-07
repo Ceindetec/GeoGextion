@@ -48,6 +48,8 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     Route::get('rutaasesor', 'HomeController@rutaasesor')->name('rutaasesor');
     Route::get('updatemarketgeneral', 'HomeController@updatemarketgeneral')->name('updatemarketgeneral');
 
+    Route::get('/home', 'HomeController@index')->name('home')->middleware('nohome'); //TODO mirar como mejorar esto
+
 
     /*//////////// RUTAS SUPERADMIN DEL SISTEMA //////////////////*/
     Route::group(['middleware' => ['superAdmin']], function () {
@@ -64,7 +66,6 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     /*///////// RUTAS SUPERADMIN EMPRESAS ////////////*/
     Route::group(['middleware' => ['superAdministradorEmpresa']], function () {
 
-        Route::get('/home', 'HomeController@index')->name('home'); //TODO mirar como mejorar esto
 
         Route::get('listaadministrador', 'AdministradorController@listaAdministradores')->name('listaAdministradores');
         Route::get('gridaadministrador', 'AdministradorController@gridAdministradores')->name('gridaadministradores');
@@ -83,7 +84,6 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     //SAE AE
     Route::group(['middleware' => ['administrador']], function () {
 
-        Route::get('/home', 'HomeController@index')->name('home'); //TODO mirar como mejorar esto
 
         /*/////// SUPERVISOR TRANSPORTE /////////*/
         Route::get('listasupervisorestransporte', 'SupervisorTransporteController@listaSupervisoresTransporte')->name('listasupervisorestransporte');
@@ -115,7 +115,7 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     /*/////////RUTAS ASESORES////////////*/
     Route::group(['middleware' => ['supervisorAsesor']], function () {
 
-        Route::get('/home', 'HomeController@index')->name('home'); //TODO mirar como mejorar esto
+
 
         Route::get('/asesores', 'AsesorController@listaAsesores')->name('listaacesores');
         Route::get('/gridasesores', 'AsesorController@gridAsesores')->name('gridasesores');
@@ -131,7 +131,6 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
     //SAE AE SPT
     Route::group(['middleware' => ['supervisorTrasnporte']], function () {
 
-        Route::get('/home', 'HomeController@index')->name('home'); //TODO mirar como mejorar esto
 
         /*/////////RUTAS TRASNSPORTADORES////////////*/
         Route::get('listartransportadores', 'TransporteController@listarTrasportadores')->name('listatrasportador');

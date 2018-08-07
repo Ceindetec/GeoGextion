@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\Administrador;
+use App\Http\Middleware\noHome;
 use App\Http\Middleware\SuperAdmin;
 use App\Http\Middleware\SuperAdministradorEmpresa;
 use App\Http\Middleware\SuperTransporte;
@@ -77,6 +78,7 @@ class Kernel extends HttpKernel
         'administrador' =>Administrador::class,
         'validarEstado' =>ValidarEstado::class,
         'supervisorTrasnporte' => SupervisorTrasnporte::class,
-        'supervisorAsesor' => SupervisorAsesor::class
+        'supervisorAsesor' => SupervisorAsesor::class,
+        'nohome' => noHome::class
     ];
 }

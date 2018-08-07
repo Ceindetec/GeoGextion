@@ -36,25 +36,25 @@ class HomeController extends Controller
      */
     public function index()
     {
-        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')) {
+        if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
             $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
             })->where('empresa_id', auth()->user()->empresa_id)
                 ->where('estado', 'A')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->pluck('nombre','identificacion');
+                ->pluck('nombre', 'identificacion');
 
         } else {
-            $id =Auth::User()->id;
-            $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
-                $query->where('roles.slug','asesor');
+            $id = Auth::User()->id;
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                $query->where('roles.slug', 'asesor');
             })
-                ->whereHas('supervisor', function ($query) use ($id){
-                    $query->where('supervisor_id','=',$id);
+                ->whereHas('supervisor', function ($query) use ($id) {
+                    $query->where('supervisor_id', '=', $id);
                 })
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('empresa_id',Auth::user()->empresa_id)
-                ->pluck('nombre','identificacion');
+                ->where('empresa_id', Auth::user()->empresa_id)
+                ->pluck('nombre', 'identificacion');
         }
 
         return view('home', compact('asesores'));
@@ -67,12 +67,18 @@ class HomeController extends Controller
                 ->whereHas('rol', function ($query) {
                     $query->where('slug', 'asesor');
                 })
-                ->where('empresa_id',auth()->user()->empresa_id)
+                ->where('empresa_id', auth()->user()->empresa_id)
                 ->get();
         } else {
-            $markets = Asesor::join('user_asesors', 'asesores.id', 'user_asesors.asesore_id')
-                ->where('user_asesors.user_id', Auth::User()->id)
-                ->where('estado', 'A')->get();
+
+            $markets = Asesor::with('ultimaposiciones')->whereHas('rol', function ($query) {
+                $query->where('roles.slug', 'asesor');
+            })
+                ->whereHas('supervisor', function ($query) {
+                    $query->where('supervisor_id', auth()->user()->id);
+                })
+                ->where('empresa_id', Auth::user()->empresa_id)
+                ->get();
         }
         foreach ($markets as $market) {
             $market->getPosition;
@@ -86,7 +92,8 @@ class HomeController extends Controller
             ->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
             })
-            ->where('empresa_id',auth()->user()->empresa_id)
+            ->where('identificacion',$request->identificacion)
+            ->where('empresa_id', auth()->user()->empresa_id)
             ->get();
 
         return $markets;
@@ -94,9 +101,14 @@ class HomeController extends Controller
 
     public function rutaasesor(Request $request)
     {
-        $markets = Asesores::where('estado', 'A')
-            ->where('identificacion', $request->identificacion)->first();
-        $markets = $markets->getRuta($request->fecha)->get();
+        $markets = Asesor::with(['posiciones'=>function($query) use($request){
+            $query->whereDate('fecha',$request->fecha);
+        }])->where('estado', 'A')
+            ->whereHas('rol', function ($query) {
+                $query->where('slug', 'asesor');
+            })
+            ->where('empresa_id', auth()->user()->empresa_id)
+            ->first();
 
         return $markets;
     }
@@ -131,33 +143,34 @@ class HomeController extends Controller
 
     public function consulta()
     {
-        if (Shinobi::isRole('admin')||Shinobi::isRole('sadminempresa')){
+        if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
             $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
             })->where('empresa_id', auth()->user()->empresa_id)
                 ->where('estado', 'A')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->pluck('nombre','identificacion');
+                ->pluck('nombre', 'identificacion');
         } else {
-            $id =Auth::User()->id;
-            $asesores = Asesor::with('rol')->whereHas('rol', function ($query){
-                $query->where('roles.slug','asesor');
+            $id = Auth::User()->id;
+            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                $query->where('roles.slug', 'asesor');
             })
-                ->whereHas('supervisor', function ($query) use ($id){
-                    $query->where('supervisor_id','=',$id);
+                ->whereHas('supervisor', function ($query) use ($id) {
+                    $query->where('supervisor_id', '=', $id);
                 })
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('empresa_id',Auth::user()->empresa_id)
-                ->pluck('nombre','identificacion');
+                ->where('empresa_id', Auth::user()->empresa_id)
+                ->pluck('nombre', 'identificacion');
         }
         return view('consulta.consulta', compact('asesores'));
     }
 
-    private function consultaGeo($identificacion,$fecha1,$fecha2,$hora1,$hora2){
+    private function consultaGeo($identificacion, $fecha1, $fecha2, $hora1, $hora2)
+    {
 
         $geposiciones = GeoPosicion::where('identificacion', $identificacion)
-            ->whereDate('fecha',">" ,$fecha1)
-            ->whereDate('fecha',"<" ,$fecha2)
+            ->whereDate('fecha', ">", $fecha1)
+            ->whereDate('fecha', "<", $fecha2)
             ->whereTime('fecha', '>=', $hora1)
             ->whereTime('fecha', '<', $hora2)
             ->get();
@@ -167,8 +180,8 @@ class HomeController extends Controller
 
     public function resultadoConsulta(Request $request)
     {
-        $fecha = explode(" - ",$request->fecha);
-        $geposiciones = $this->consultaGeo($request->asesor,$fecha[0],$fecha[1],$request->hora1.':00',$request->hora2.':00');
+        $fecha = explode(" - ", $request->fecha);
+        $geposiciones = $this->consultaGeo($request->asesor, $fecha[0], $fecha[1], $request->hora1 . ':00', $request->hora2 . ':00');
 
 //        return $geposiciones;
         return view('consulta.resultado', compact('geposiciones', 'request'));
@@ -176,8 +189,8 @@ class HomeController extends Controller
 
     public function exportarPdf(Request $request)
     {
-        $fecha = explode(" - ",$request->fecha);
-        $geposiciones = $this->consultaGeo($request->asesor,$fecha[0],$fecha[1],$request->hora1.':00',$request->hora2.':00');
+        $fecha = explode(" - ", $request->fecha);
+        $geposiciones = $this->consultaGeo($request->asesor, $fecha[0], $fecha[1], $request->hora1 . ':00', $request->hora2 . ':00');
         $data = ['geposiciones' => $geposiciones];
         $pdf = \PDF::loadView('consulta.exportarpdfconsulta', $data);
         $pdf->setPaper('A4', 'landscape');
@@ -186,8 +199,8 @@ class HomeController extends Controller
 
     public function exportarExcel(Request $request)
     {
-        $fecha = explode(" - ",$request->fecha);
-        $geposiciones = $this->consultaGeo($request->asesor,$fecha[0],$fecha[1],$request->hora1.':00',$request->hora2.':00');
+        $fecha = explode(" - ", $request->fecha);
+        $geposiciones = $this->consultaGeo($request->asesor, $fecha[0], $fecha[1], $request->hora1 . ':00', $request->hora2 . ':00');
 
         \Excel::create('Geoposiciones', function ($excel) use ($request, $geposiciones) {
             $fecha1 = $request->fecha1;
@@ -258,5 +271,5 @@ class HomeController extends Controller
         return view('consulta.modalmapapunto', compact('geposicion'));
     }
 
-    
+
 }

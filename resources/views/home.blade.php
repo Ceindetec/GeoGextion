@@ -7,6 +7,7 @@
     <link href="{{asset('plugins/clockpicker/css/bootstrap-clockpicker.min.css')}}" rel="stylesheet">
     <link href="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.css')}}" rel="stylesheet">
     <link href="{{asset('plugins/leaflet/leaflet.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
 @endsection
 
 @section('styles')
@@ -59,15 +60,18 @@
         <div id="otromap" class="gmaps-full1"></div>
     </div>
 
+    <div id='map' style='width: 400px; height: 300px;'></div>
+
+
 @endsection
 
 @section('scripts')
 
     <!-- google maps api -->
-    {{Html::script('http://maps.google.com/maps/api/js?key=AIzaSyAk3sbqJFg6zDsnVlJ4p1VR8b6PQwcQobU')}}
+    {{--{{Html::script('http://maps.google.com/maps/api/js?key=AIzaSyAk3sbqJFg6zDsnVlJ4p1VR8b6PQwcQobU')}}
 
     <!-- main file -->
-    {{Html::script('plugins/gmaps/gmaps.min.js')}}
+    {{Html::script('plugins/gmaps/gmaps.min.js')}} --}}∫
 
     <script src="{{asset('plugins/moment/moment.js')}}"></script>
     <script src="{{asset('plugins/timepicker/bootstrap-timepicker.js')}}"></script>
@@ -76,10 +80,12 @@
     <script src="{{asset('plugins/clockpicker/js/bootstrap-clockpicker.min.js')}}"></script>
     <script src="{{asset('plugins/bootstrap-daterangepicker/daterangepicker.js')}}"></script>
     <script src="{{asset('plugins/leaflet/leaflet.js')}}"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
 
     <script>
         var map;
-
+        var routingControl = '';
         var ruta = false;
         $(function () {
 
@@ -107,7 +113,27 @@
                         identificacion: $("#asesor").val(),
                         fecha: $('#datepicker').val()
                     }, function (data) {
-                        map.removeMarkers();
+
+                        map.eachLayer(function (layer) {
+                            //console.log(layer);
+                            if(layer.options.attribution == null){
+                                map.removeLayer(layer);
+                            }
+                        });
+
+                        if(routingControl != ''){
+                            map.removeControl(routingControl);
+                        }
+
+
+                        var puntos = [];
+
+                        for (i = 0; i < data.posiciones.length; i++) {
+                            punto =  L.latLng(data.posiciones[i].latitud, data.posiciones[i].longitud);
+                            puntos.push(punto);
+                        }
+
+                        /*map.removeMarkers();
                         map.removePolylines();
                         map.cleanRoute();
                         var puntos = [];
@@ -136,8 +162,22 @@
                             strokeColor: '#131540',
                             strokeOpacity: 0.6,
                             strokeWeight: 6
-                        });
+                        });*/
 
+                        if(puntos.length > 0){
+
+                            routingControl = L.Routing.control({
+                                waypoints: puntos,
+                                routeWhileDragging: false,
+                                draggableWaypoints:false,
+                                router: L.Routing.mapbox('pk.eyJ1IjoibWR4c2hhbmEiLCJhIjoiY2prajZ2dGpwMDg0ZDN2bXUwZHc1bTBvZyJ9.tcgVdGT9VfYGuA3b6pekug')
+                            }).addTo(map);
+                            //map.setZoom(10);
+
+                            routingControl.hide();
+                        }
+
+                       //L.Routing.plan({draggableWaypoints:false});
 
                     });
                 }
@@ -154,20 +194,29 @@
 
         function marketIndividual(id) {
             $.get('{{route('ubicarasesor')}}', {identificacion: id}, function (data) {
+                if(routingControl != ''){
+                    map.removeControl(routingControl);
+                }
                 map.eachLayer(function (layer) {
                     if(layer.options.attribution == null){
                         map.removeLayer(layer);
                     }
                 });
                 map.setZoom(16);
-                var marker = L.marker([data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud]).addTo(map);
-                marker.bindPopup(`${data[0].nombres} ${data[0].apellidos}`);
-                map.panTo((new L.LatLng(data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud)));
+                if(data[0].ultimaposiciones != null){
+
+                    var marker = L.marker([data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud]).addTo(map);
+                    marker.bindPopup(`${data[0].nombres} ${data[0].apellidos}`);
+                    map.panTo((new L.LatLng(data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud)));
+                }
 
             });
         }
 
         function contrucionutimomarke(data) {
+            if(routingControl != ''){
+                map.removeControl(routingControl);
+            }
             map.eachLayer(function (layer) {
                 if(layer.options.attribution == null){
                     map.removeLayer(layer);
@@ -175,8 +224,10 @@
             });
             map.setZoom(7);
             for (i = 0; i < data.length; i++) {
-                var marker = L.marker([data[i].ultimaposiciones.latitud, data[i].ultimaposiciones.longitud]).addTo(map);
-                marker.bindPopup(`${data[i].nombres} ${data[i].apellidos}`);
+                if(data[i].ultimaposiciones != null){
+                    var marker = L.marker([data[i].ultimaposiciones.latitud, data[i].ultimaposiciones.longitud]).addTo(map);
+                    marker.bindPopup(`${data[i].nombres} ${data[i].apellidos}`);
+                }
             }
         }
 
