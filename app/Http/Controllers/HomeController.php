@@ -6,6 +6,7 @@ use App\Asesor;
 use App\Asesores;
 use App\Empresas;
 use App\GeoPosicion;
+use App\Trasportador;
 use App\User;
 use App\UserAsesor;
 use Carbon\Carbon;
@@ -66,20 +67,32 @@ class HomeController extends Controller
         if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
             $markets = Asesor::with('ultimaposiciones')->where('estado', 'A')
                 ->whereHas('rol', function ($query) {
-                    $query->where('slug', 'asesor');
+                    $query->whereIn('roles.id', [User::ASESOR, User::TRASPORTADOR]);
                 })
                 ->where('empresa_id', auth()->user()->empresa_id)
                 ->get();
         } else {
 
-            $markets = Asesor::with('ultimaposiciones')->whereHas('rol', function ($query) {
-                $query->where('roles.slug', 'asesor');
-            })
-                ->whereHas('supervisor', function ($query) {
-                    $query->where('supervisor_id', auth()->user()->id);
+            if (Shinobi::isRole('super')) {
+
+                $markets = Asesor::with('ultimaposiciones')->whereHas('rol', function ($query) {
+                    $query->where('roles.id', User::ASESOR);
                 })
-                ->where('empresa_id', Auth::user()->empresa_id)
-                ->get();
+                    ->whereHas('supervisor', function ($query) {
+                        $query->where('supervisor_id', auth()->user()->id);
+                    })
+                    ->where('empresa_id', Auth::user()->empresa_id)
+                    ->get();
+            } else if(Shinobi::isRole('supert')) {
+                $markets = Trasportador::with('ultimaposiciones')->whereHas('rol', function ($query) {
+                    $query->where('roles.id', User::TRASPORTADOR);
+                })
+                    ->whereHas('supervisor', function ($query) {
+                        $query->where('supervisor_id', auth()->user()->id);
+                    })
+                    ->where('empresa_id', Auth::user()->empresa_id)
+                    ->get();
+            }
         }
         foreach ($markets as $market) {
             $market->getPosition;
@@ -93,7 +106,7 @@ class HomeController extends Controller
             ->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
             })
-            ->where('identificacion',$request->identificacion)
+            ->where('identificacion', $request->identificacion)
             ->where('empresa_id', auth()->user()->empresa_id)
             ->get();
 
@@ -102,8 +115,8 @@ class HomeController extends Controller
 
     public function rutaasesor(Request $request)
     {
-        $markets = Asesor::with(['posiciones'=>function($query) use($request){
-            $query->whereDate('fecha',$request->fecha);
+        $markets = Asesor::with(['posiciones' => function ($query) use ($request) {
+            $query->whereDate('fecha', $request->fecha);
         }])->where('estado', 'A')
             ->whereHas('rol', function ($query) {
                 $query->where('slug', 'asesor');
@@ -146,22 +159,36 @@ class HomeController extends Controller
     {
         if (Shinobi::isRole('admin') || Shinobi::isRole('sadminempresa')) {
             $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
-                $query->where('slug', 'asesor');
+                $query->whereIn('roles.id', [User::ASESOR, User::TRASPORTADOR]);
             })->where('empresa_id', auth()->user()->empresa_id)
                 ->where('estado', 'A')
                 ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
                 ->pluck('nombre', 'identificacion');
         } else {
             $id = Auth::User()->id;
-            $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
-                $query->where('roles.slug', 'asesor');
-            })
-                ->whereHas('supervisor', function ($query) use ($id) {
-                    $query->where('supervisor_id', '=', $id);
+            if(Shinobi::isRole('super')){
+
+                $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                    $query->where('roles.id', User::ASESOR);
                 })
-                ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
-                ->where('empresa_id', Auth::user()->empresa_id)
-                ->pluck('nombre', 'identificacion');
+                    ->whereHas('supervisor', function ($query) use ($id) {
+                        $query->where('supervisor_id', '=', $id);
+                    })
+                    ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                    ->where('empresa_id', Auth::user()->empresa_id)
+                    ->pluck('nombre', 'identificacion');
+
+            }else if(Shinobi::isRole('supert')){
+                $asesores = Asesor::with('rol')->whereHas('rol', function ($query) {
+                    $query->where('roles.id', User::TRASPORTADOR);
+                })
+                    ->whereHas('supervisor', function ($query) use ($id) {
+                        $query->where('supervisor_id', '=', $id);
+                    })
+                    ->select([\DB::raw('concat(nombres," ",apellidos) as nombre, identificacion', 'estado')])
+                    ->where('empresa_id', Auth::user()->empresa_id)
+                    ->pluck('nombre', 'identificacion');
+            }
         }
         return view('consulta.consulta', compact('asesores'));
     }
@@ -210,10 +237,10 @@ class HomeController extends Controller
             $excel->sheet('Geoposiciones', function ($sheet) use ($geposiciones, $rango) {
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
-                if($geposiciones[0]->getAsesor->empresa->logo == null){
+                if ($geposiciones[0]->getAsesor->empresa->logo == null) {
 
                     $objDrawing->setPath(public_path('images/logo1.png')); //your image path
-                }else{
+                } else {
                     $objDrawing->setPath(public_path($geposiciones[0]->getAsesor->empresa->logo));
                 }
                 $objDrawing->setHeight(50);

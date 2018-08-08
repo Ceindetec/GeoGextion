@@ -15,4 +15,9 @@ class Trasportador extends User
     {
         return $this->belongsToMany(Asesor::class,'supertransporte_transportador','transportador_id','supertransporte_id');
     }
+
+    public function ultimaposiciones()
+    {
+        return $this->hasOne(GeoPosicion::class,'identificacion','identificacion')->orderBy('created_at','desc');
+    }
 }
