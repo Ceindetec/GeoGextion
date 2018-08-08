@@ -204,9 +204,8 @@
                 });
                 map.setZoom(16);
                 if(data[0].ultimaposiciones != null){
-
                     var marker = L.marker([data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud]).addTo(map);
-                    marker.bindPopup(`${data[0].nombres} ${data[0].apellidos}`);
+                    marker.bindPopup(`${data[0].nombres} ${data[0].apellidos}<br>fecha: ${data[0].ultimaposiciones.fecha}`);
                     map.panTo((new L.LatLng(data[0].ultimaposiciones.latitud, data[0].ultimaposiciones.longitud)));
                 }
 
@@ -226,7 +225,7 @@
             for (i = 0; i < data.length; i++) {
                 if(data[i].ultimaposiciones != null){
                     var marker = L.marker([data[i].ultimaposiciones.latitud, data[i].ultimaposiciones.longitud]).addTo(map);
-                    marker.bindPopup(`${data[i].nombres} ${data[i].apellidos}`);
+                    marker.bindPopup(`${data[i].nombres} ${data[i].apellidos}<br>fecha: ${data[i].ultimaposiciones.fecha}`);
                 }
             }
         }

@@ -102,12 +102,24 @@ Route::group(['middleware' => ['auth','validarEstado']], function () {
         Route::get('supervisor/editar/{id}', 'SupervisorController@viewEditarSupervisor')->name('supervisor.editar');
         Route::post('supervisor/editar/{id}', 'SupervisorController@editarSupervisor');
         Route::post('supervisor/cambiarestado', 'SupervisorController@cambiarEstadoSupervisor')->name('supervisor.cambiarestado');
+        Route::get('exportarsupervisoresase', 'SupervisorController@exportar')->name('exportsuperase');
+
+        /*////////////////////RUTAS PARA ASIGNAR ASESOR AL SUPERVISOR ///////////////////*/
         Route::get('supervisor/asociar/{id}', 'SupervisorController@asociarAsesorSupervisor')->name('supervisor.asociar');
         Route::get('supervisor/gridnoasesores/{id}', 'SupervisorController@gridNoAsesores')->name('gridnoasesores');
         Route::get('supervisor/gridsiasesores/{id}', 'SupervisorController@gridSiAsesores')->name('gridsiasesores');
         Route::post('supervisor/agregaasesor', 'SupervisorController@agregaAsesor')->name('supervisor.agregaasesor');
         Route::post('supervisor/quitarasesor', 'SupervisorController@quitarAsesor')->name('supervisor.quitarasesor');
-        Route::get('exportarsupervisoresase', 'SupervisorController@exportar')->name('exportsuperase');
+
+        /*////////////////////RUTAS PARA ASIGNAR TRANSPORTADOR AL SUPERVISOR ///////////////////*/
+        Route::get('supervisortransporte/asociar/{id}', 'SupervisorTransporteController@asociarTrasportadorSupervisor')->name('supervisortransporte.asociar');
+        Route::get('supervisor/gridnoasesorestrans/{id}', 'SupervisorTransporteController@gridNoTransportador')->name('gridnoasesorestrans');
+        Route::get('supervisor/gridsiasesorestrans/{id}', 'SupervisorTransporteController@gridSiTransportador')->name('gridsiasesorestrans');
+        Route::post('supervisor/agregatransportador', 'SupervisorTransporteController@agregaTransportador')->name('supervisor.agregatransportador');
+        Route::post('supervisor/quitartransportador', 'SupervisorTransporteController@quitarTransportador')->name('supervisor.quitartransportador');
+
+
+
     });
 
 

@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Middleware\SupervisorTrasnporte;
 use App\SupervisorTransporte;
+use App\Trasportador;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -27,7 +29,7 @@ class SupervisorTransporteController extends Controller
             ->addColumn('action', function ($supervisores) {
                 $acciones = '<div class="btn-group">';
                 $acciones .= '<a class="btn btn-xs btn-success" data-modal href="' . route('supervisortransporte.editar', $supervisores->id) . '">Editar</a>';
-                $acciones .= '<a class="btn btn-xs btn-primary" data-modal="modal-lg" href="' . route('supervisor.asociar', $supervisores->id) . '">Asesores</a>';
+                $acciones .= '<a class="btn btn-xs btn-primary" data-modal="modal-lg" href="' . route('supervisortransporte.asociar', $supervisores->id) . '">Trasportadores</a>';
                 if ($supervisores->estado == 'A')
                     $acciones .= '<button class="btn btn-xs btn-danger" onclick="cambiarestado(' . $supervisores->id . ')">Inactivar</button>';
                 else
@@ -202,4 +204,78 @@ class SupervisorTransporteController extends Controller
             });
         })->export('xlsx');
     }
+
+    public function asociarTrasportadorSupervisor($id)
+    {
+        try{
+            $supervisor = SupervisorTransporte::query()->findOrFail($id);
+            return view('supertransporte.modalasignartransportador', compact('supervisor'));
+        }catch (\Exception $exception){
+           return abort(404);
+        }
+    }
+
+    public function gridNoTransportador($id)
+    {
+
+
+        $asesores = Trasportador::with('rol')->whereHas('rol', function ($query){
+            $query->where('roles.id',User::TRASPORTADOR);
+        })
+            ->whereDoesntHave('supertransportador', function ($query) use ($id){
+                $query->where('supertransporte_id','=',$id);
+            })
+            ->where('empresa_id',Auth::user()->empresa_id)->get();
+
+
+        return DataTables::of($asesores)
+            ->addColumn('action', function ($asesores) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<button class="btn btn-xs btn-success" onclick="agregar(' . $asesores->id . ')"><i class="fa fa-plus-square" aria-hidden="true"></i></button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+    public function gridSiTransportador($id)
+    {
+        $asesores = Trasportador::with('rol')->whereHas('rol', function ($query){
+            $query->where('roles.id',User::TRASPORTADOR);
+        })
+            ->whereHas('supertransportador', function ($query) use ($id){
+                $query->where('supertransporte_id','=',$id);
+            })
+            ->where('empresa_id',Auth::user()->empresa_id)->get();
+
+        return DataTables::of($asesores)
+            ->addColumn('action', function ($asesores) {
+                $acciones = '<div class="btn-group">';
+                $acciones .= '<button class="btn btn-xs btn-danger" onclick="quitar(' . $asesores->id . ')"><i class="fa fa-minus-square" aria-hidden="true"></i></button>';
+                $acciones .= '</div>';
+                return $acciones;
+            })
+            ->make(true);
+    }
+
+
+    public function agregaTransportador(Request $request)
+    {
+        $supervisor = SupervisorTransporte::query()->findOrFail($request->idsuper);
+        $supervisor->transportadores()->syncWithoutDetaching($request->id);
+        $result['estado'] = TRUE;
+        $result['mensaje'] = 'agregado';
+        return $result;
+    }
+
+    public function quitarTransportador(Request $request)
+    {
+        //UserAsesor::where('user_id', $request->idsuper)->where('asesore_id', $request->id)->delete();
+        $supervisor = SupervisorTransporte::query()->findOrFail($request->idsuper);
+        $supervisor->transportadores()->detach($request->id);
+        $result['estado'] = TRUE;
+        $result['mensaje'] = 'Eliminado';
+        return $result;
+    }
+
 }
