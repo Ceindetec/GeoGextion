@@ -8,6 +8,7 @@ use App\Vehiculo;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -46,6 +47,7 @@ class TransporteController extends Controller
 
     public function crearTransportador(Request $request)
     {
+        DB::beginTransaction();
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
@@ -68,11 +70,13 @@ class TransporteController extends Controller
             $transportador->empresa_id = Auth::user()->empresa_id;
             $transportador->vehiculo_id = $request->vehiculo_id;
             $transportador->save();
-            $transportador->assignRole(User::TRASPORTADOR);
+            $user = User::find($transportador->id);
+            $user->assignRole(User::TRASPORTADOR);
             $result['estado'] = true;
             $result['mensaje'] = 'Trasportador agregado satisfactoriamente.';
-
+            DB::commit();
         } catch (\Exception $exception) {
+            DB::rollBack();
             $result['estado'] = false;
             $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
         }
@@ -143,9 +147,9 @@ class TransporteController extends Controller
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
                 if(auth()->user()->empresa->logo == null){
-                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                    $objDrawing->setPath('images/logo1.png'); //your image path
                 }else{
-                    $objDrawing->setPath(public_path(auth()->user()->empresa->logo)); //your image path
+                    $objDrawing->setPath(auth()->user()->empresa->logo); //your image path
                 }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');

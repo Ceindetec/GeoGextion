@@ -4,7 +4,7 @@
         <h4 class="modal-title">Asociar asesores</h4>
     </div>
     <div class="modal-body">
-        <h4 class="modal-title">Asesores sin asignar</h4>
+        <h4 class="modal-title">Transportadores sin asignar</h4>
         <table id="noasesores" class="table table-striped table-bordered" width="100%">
             <thead>
             <tr>
@@ -17,7 +17,7 @@
             <tbody>
             </tbody>
         </table>
-        <h4 class="modal-title">Asesores asiganados</h4>
+        <h4 class="modal-title">Transportadores asignados</h4>
         <table id="asesores" class="table table-striped table-bordered" width="100%">
             <thead>
             <tr>
@@ -33,7 +33,6 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Cerrar</button>
-        <button type="submit" class="btn btn-success waves-effect waves-light">Guardar</button>
     </div>
 </div>
 

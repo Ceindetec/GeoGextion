@@ -6,6 +6,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -36,7 +37,7 @@ class AdministradorController extends Controller
     public function gridAdministradores()
     {
         $admins = User::join('role_user', 'users.id', 'role_user.user_id')
-            ->where('role_user.role_id', 3)
+            ->where('role_user.role_id', User::ADMINISTRADOR)
             ->where('users.empresa_id', Auth::user()->empresa_id)
             ->select('users.*')
             ->get();
@@ -57,10 +58,11 @@ class AdministradorController extends Controller
 
     public function crearAdministrador(Request $request)
     {
+        DB::beginTransaction();
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
-                'identificacion' => 'required|unique:asesores|max:11',
+                'identificacion' => 'required|unique:users|max:11',
                 'email' => 'required|unique:users',
             ]);
 
@@ -78,11 +80,13 @@ class AdministradorController extends Controller
             $supervisor->password = bcrypt(trim($request->identificacion));
             $supervisor->empresa_id = Auth::user()->empresa_id;
             $supervisor->save();
-            $supervisor->assignRole(3);
+            $supervisor->assignRole(User::ADMINISTRADOR);
+            DB::commit();
             $result['estado'] = true;
             $result['mensaje'] = 'Administrador agregado satisfactoriamente.';
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             $result['estado'] = false;
             $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
         }
@@ -101,9 +105,9 @@ class AdministradorController extends Controller
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
                 if(auth()->user()->empresa->logo == null){
-                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                    $objDrawing->setPath('images/logo1.png'); //your image path
                 }else{
-                    $objDrawing->setPath(public_path(auth()->user()->empresa->logo)); //your image path
+                    $objDrawing->setPath(auth()->user()->empresa->logo); //your image path
                 }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');

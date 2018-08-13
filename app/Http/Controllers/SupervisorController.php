@@ -8,6 +8,7 @@ use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use PHPExcel_Worksheet_Drawing;
 use Yajra\DataTables\Facades\DataTables;
 
@@ -38,6 +39,7 @@ class SupervisorController extends Controller
 
     public function crearSupervisor(Request $request)
     {
+        DB::beginTransaction();
         $result = [];
         try {
             $validator = \Validator::make($request->all(), [
@@ -60,10 +62,12 @@ class SupervisorController extends Controller
             $supervisor->empresa_id = Auth::user()->empresa_id;
             $supervisor->save();
             $supervisor->assignRole(4);
+            DB::commit();
             $result['estado'] = true;
             $result['mensaje'] = 'supervisor agregado satisfactoriamente.';
 
         } catch (\Exception $exception) {
+            DB::rollBack();
             $result['estado'] = false;
             $result['mensaje'] = 'Error de ejecucion. ' . $exception->getMessage();
         }
@@ -240,9 +244,9 @@ class SupervisorController extends Controller
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
                 if(auth()->user()->empresa->logo == null){
-                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                    $objDrawing->setPath('images/logo1.png'); //your image path
                 }else{
-                    $objDrawing->setPath(public_path(auth()->user()->empresa->logo)); //your image path
+                    $objDrawing->setPath(auth()->user()->empresa->logo); //your image path
                 }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');

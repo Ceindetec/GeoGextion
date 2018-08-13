@@ -140,9 +140,9 @@ class SupervisorTransporteController extends Controller
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
                 if(auth()->user()->empresa->logo == null){
-                    $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                    $objDrawing->setPath('images/logo1.png'); //your image path
                 }else{
-                    $objDrawing->setPath(public_path(auth()->user()->empresa->logo)); //your image path
+                    $objDrawing->setPath(auth()->user()->empresa->logo); //your image path
                 }
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');

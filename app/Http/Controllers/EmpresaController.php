@@ -171,7 +171,7 @@ class EmpresaController extends Controller
             $excel->sheet('Empresas', function ($sheet) use ($empresas) {
                 $hoy = Carbon::now();
                 $objDrawing = new PHPExcel_Worksheet_Drawing;
-                $objDrawing->setPath(public_path('images/logo1.png')); //your image path
+                $objDrawing->setPath('images/logo1.png'); //your image path
                 $objDrawing->setHeight(50);
                 $objDrawing->setCoordinates('A1');
                 $objDrawing->setWorksheet($sheet);
